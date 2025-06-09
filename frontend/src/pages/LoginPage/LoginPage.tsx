@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import "./LoginPage.css";
-=======
-import "./Login.css";
->>>>>>> Stashed changes
-=======
-import "./LoginPage.css";
->>>>>>> Stashed changes
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,15 +9,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle login logic here
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     alert(`Logged in with ${email}, Remember Me: ${rememberMe}`);
-=======
-    alert(`Logging in with Email: ${email} and Password: ${password}`);
->>>>>>> Stashed changes
-=======
-    alert(`Logged in with ${email}, Remember Me: ${rememberMe}`);
->>>>>>> Stashed changes
   };
 
   return (
@@ -33,13 +17,6 @@ const LoginPage: React.FC = () => {
       <div className="form-section">
         <div className="form-container">
           <img src="../assets/BSLC-logo.png" alt="BSLC logo" />
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
           <form onSubmit={handleSubmit}>
             <label htmlFor="email">Email</label>
             <div className="input-wrapper">
@@ -72,15 +49,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="checkbox-container">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
               <input type="checkbox" id="remember-me" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} aria-label="Remember Me Checkbox" />
-=======
-              <input type="checkbox" id="remember-me" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} aria-label="Remember Me" />
->>>>>>> Stashed changes
-=======
-              <input type="checkbox" id="remember-me" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} aria-label="Remember Me Checkbox" />
->>>>>>> Stashed changes
               <label htmlFor="remember-me">Remember Me</label>
             </div>
 
