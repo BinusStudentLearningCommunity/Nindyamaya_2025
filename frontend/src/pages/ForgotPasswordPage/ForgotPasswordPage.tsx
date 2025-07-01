@@ -14,7 +14,7 @@ const ForgotPassword: React.FC = () => {
     <section className="forgot-password-page">
       <div className="form-section">
         <div className="form-container">
-          <img src="../assets/BSLC-logo.png" alt="BSLC logo" />
+          <img src="/assets/BSLC-logo.png" alt="BSLC logo" />
 
           <form onSubmit={handleSubmit}>
             <label htmlFor="email">Enter your email</label>
@@ -33,7 +33,7 @@ const ForgotPassword: React.FC = () => {
       </div>
 
       <div className="hero-section">
-        <img src="../assets/BSLC-img.png" alt="Image of BSLC" />
+        <img src="/assets/BSLC-img.png" alt="Image of BSLC" />
       </div>
     </section>
   );
