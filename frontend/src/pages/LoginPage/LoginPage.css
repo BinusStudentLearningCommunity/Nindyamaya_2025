@@ -9,7 +9,7 @@
 
 :root {
   --font-xsmall: 12px;
-  --font-medium: 20px;
+  --font-small: 16px;
   --color-black: #111111;
   --color-white: #ffffff;
   --color-gray: #d2d2d2;
@@ -50,7 +50,8 @@
 
 .form-container {
   display: block;
-  margin: auto;
+  margin: 0;
+  text-align: start;
 }
 
 form {
@@ -62,12 +63,16 @@ form {
 .input-wrapper {
   position: relative;
   width: 100%;
-  margin-bottom: 20px;
 }
 
 input {
   padding-right: 40px;
   cursor: pointer;
+}
+
+input:focus {
+  outline-color: transparent;
+  border: solid 2px var(--color-black);
 }
 
 .input-wrapper svg {
@@ -110,7 +115,7 @@ form input {
 }
 
 form label {
-  font-size: var(--font-medium);
+  font-size: var(--font-small);
   color: var(--color-dark-gray);
   margin-bottom: 7px;
 }
@@ -121,7 +126,7 @@ form label {
 }
 
 .checkbox-container input[type="checkbox"] {
-  margin: 0;
+  margin: auto 0;
   width: 18px;
   height: 18px;
 }
@@ -148,7 +153,7 @@ a:hover {
   color: black;
 }
 
-@media (max-width: 940px) {
+@media (max-width: 740px) {
   .hero-section {
     display: none;
   }
@@ -157,14 +162,17 @@ a:hover {
     padding: 10%;
     justify-content: center;
   }
+
+  .login-page {
+    min-height: 100vh;
+    min-width: 100%;
+  }
+
   .form-container {
     border-radius: 20px;
     background-color: var(--gradient);
-    border: 2px var(--color-dark-gray);
-    padding: 70px 50px;
+    border: 2px #626262;
+    padding: 50px;
     box-shadow: var(--box-shadow);
-  }
-  .login-page {
-    min-height: 100%;
   }
 }
