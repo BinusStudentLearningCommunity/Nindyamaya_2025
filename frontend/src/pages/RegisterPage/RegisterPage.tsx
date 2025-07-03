@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./RegisterPage.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -9,11 +9,28 @@ const RegisterPage: React.FC = () => {
   const [schoolFaculty, setSchoolFaculty] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Registration logic here
+
+    if (!email.endsWith("@binus.ac.id")) {
+      setError("Please use a valid BINUS University email (@binus.ac.id).");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match. Please try again.");
+      return;
+    }
+
+    setError("");
+    console.log("Passwords match!");
     alert(`Registered with email: ${email}`);
+
+    navigate("/");
   };
 
   return (
@@ -43,7 +60,7 @@ const RegisterPage: React.FC = () => {
               </svg>
             </div>
 
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email (Binusian Email)</label>
             <div className="input-wrapper">
               <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required aria-label="Email" />
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -65,17 +82,35 @@ const RegisterPage: React.FC = () => {
 
             <label htmlFor="school-faculty">School/Faculty</label>
             <div className="input-wrapper">
-              <input type="text" id="school-faculty" value={schoolFaculty} onChange={(e) => setSchoolFaculty(e.target.value)} required aria-label="School/Faculty" />
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <select
+                id="school-faculty"
+                value={schoolFaculty}
+                onChange={(e) => setSchoolFaculty(e.target.value)}
+                required
+                aria-label="School/Faculty"
+            >
+                <option value="" disabled>School / Faculty</option>
+                <option value="School of Computer Science">School of Computer Science</option>
+                <option value="School of Information System">School of Information System</option>
+                <option value="School of Accounting">School of Accounting</option>
+                <option value="Faculty of Engineering">Faculty of Engineering</option>
+                <option value="BINUS Business School">BINUS Business School</option>
+                <option value="Faculty of Digital Communication and Hotel and Tourism">
+                Faculty of Digital Communication and Hotel and Tourism
+                </option>
+                <option value="Faculty of Humanities">Faculty of Humanities</option>
+                <option value="School of Design">School of Design</option>
+            </select>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
-                  d="M2.25 6.75L9 1.5L15.75 6.75V15C15.75 15.3978 15.592 15.7794 15.3107 16.0607C15.0294 16.342 14.6478 16.5 14.25 16.5H3.75C3.35218 16.5 2.97064 16.342 2.68934 16.0607C2.40804 15.7794 2.25 15.3978 2.25 15V6.75Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                d="M2.25 6.75L9 1.5L15.75 6.75V15C15.75 15.3978 15.592 15.7794 15.3107 16.0607C15.0294 16.342 14.6478 16.5 14.25 16.5H3.75C3.35218 16.5 2.97064 16.342 2.68934 16.0607C2.40804 15.7794 2.25 15.3978 2.25 15V6.75Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 />
                 <path d="M6.75 16.5V9H11.25V16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+            </svg>
             </div>
 
             <label htmlFor="password">Password</label>
@@ -119,6 +154,8 @@ const RegisterPage: React.FC = () => {
                 />
               </svg>
             </div>
+
+            {error && <p className="error-message">{error}</p>}
 
             <button type="submit">Register</button>
             <p>

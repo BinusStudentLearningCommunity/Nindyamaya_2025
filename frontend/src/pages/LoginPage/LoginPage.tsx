@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle login logic here
     alert(`Logged in with ${email}, Remember Me: ${rememberMe}`);
+
+    navigate("/home");
   };
 
   return (
@@ -56,6 +59,10 @@ const LoginPage: React.FC = () => {
 
             <button type="submit">Login</button>
             <Link to="/forgot-password">Forgot Password</Link>
+            <p>
+             Don't have an account? <Link to="/register">Sign up here</Link>
+            </p>
+
           </form>
         </div>
       </div>

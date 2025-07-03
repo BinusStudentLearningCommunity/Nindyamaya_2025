@@ -138,6 +138,29 @@ a:hover {
   color: black;
 }
 
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  cursor: pointer;
+  height: 40px;
+  border-radius: 10px;
+  padding: 0 1rem;
+  width: 100%;
+  border: solid 0.5px var(--color-gray);
+  background-color: var(--color-white);
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  text-decoration: none;
+}
+
 @media (max-width: 540px) {
   .hero-section {
     display: none;
@@ -160,4 +183,14 @@ a:hover {
     padding: 50px;
     box-shadow: var(--box-shadow);
   }
+
+   select {
+    font-size: 12px;
+  }
+
+   .form-container input,
+   .form-container select,
+   .form-container button {
+    width: 100%;
+   }
 }
