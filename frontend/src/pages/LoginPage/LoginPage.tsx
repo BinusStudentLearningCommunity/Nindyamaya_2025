@@ -8,12 +8,30 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    alert(`Logged in with ${email}, Remember Me: ${rememberMe}`);
 
-    navigate("/home");
+    const formData = {
+      email:email,
+      password:password,
+      rememberMe:rememberMe
+    }
+    // TODO: replace link
+    const res = await fetch('http://localhost:5000/api/users/login',{
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body:JSON.stringify(formData)
+    })
+
+    const data = await res.json()
+    console.log(data);
+    if(res.ok){
+      localStorage.setItem('token', data.token);
+      navigate("/home");
+    }
+    else{
+      console.log(data.message);
+    }
   };
 
   return (
