@@ -81,6 +81,7 @@ body {
   display: flex; /* For centering or primary layout */
   justify-content: center; /* Center horizontally for simple layouts */
   align-items: flex-start; /* Align to top for multi-page layouts */
+  margin: 0;
 }
 
 /* Adjust for #root to take full width and manage its own padding */
@@ -199,7 +200,6 @@ select:focus {
 
 label {
     display: block;
-    margin-bottom: var(--space-sm);
     font-weight: 500;
     color: var(--text-color-light);
 }

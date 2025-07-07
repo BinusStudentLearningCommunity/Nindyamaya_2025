@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;500;600&display=swap');
+
+.profile-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  background-color: #f8f9fa;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.page-title {
+  background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  margin: 0 0 2rem 0;
+  width: 100%;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* --- CARD LAYOUT & SPACING REFINEMENTS --- */
+.profile-card {
+  background-color: white;
+  border-radius: 16px; /* Slightly larger radius for a softer look */
+  box-shadow: 0 8px 30px rgba(0,0,0,0.07); /* Softer, more modern shadow */
+  padding: 2rem; /* Adjusted padding */
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* Adjusted gap */
+  width: 100%;
+  /* Set a max-width and center the card */
+  max-width: 800px;
+  margin: 2rem auto; /* Vertical margin and auto horizontal margin for centering */
+  transition: box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.09);
+}
+
+@media (min-width: 768px) {
+  .profile-card {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* --- PHOTO SECTION REFINEMENTS --- */
+.profile-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items within the flex container */
+  width: 100%;
+  max-width: 220px; /* Slightly smaller max-width */
+  flex-shrink: 0;
+}
+
+.photo-placeholder, .profile-image {
+  width: 140px; /* Slightly smaller photo */
+  height: 140px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  background-color: #ecf0f1;
+  color: #bdc3c7;
+  border: 3px dashed #e0e0e0; /* Dashed border for placeholder */
+}
+
+.profile-image {
+  border: 4px solid #19A89D;
+}
+
+.photo-error {
+  color: #E74C3C; /* A slightly softer red */
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500; /* Bolder for importance */
+}
+
+/* --- FILE INPUT FIX & POLISH --- */
+.file-input-wrapper {
+  border: 2px solid #DDE2E5; /* Lighter default border */
+  border-radius: 8px;
+  display: flex;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background-color: white;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  align-items: center;
+}
+
+/* Add a focus/hover state to the entire wrapper */
+.file-input-wrapper:hover {
+    border-color: #19A89D;
+    box-shadow: 0 0 0 3px rgba(25, 168, 157, 0.1);
+}
+
+.file-input {
+  display: none;
+}
+
+.file-input-label {
+  background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
+  padding: 0.7rem 1.1rem;
+  cursor: pointer;
+  /* REMOVED the border-right to fix the "cut-off" look */
+  color: white;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.file-input-label:hover {
+  background: linear-gradient(135deg, #1DB5A8 0%, #2A8B82 100%);
+}
+
+.file-name {
+  padding: 0.7rem 1.1rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  flex: 1;
+  font-weight: 500;
+  font-size: x-small;
+  text-align: left; /* Align text to the left */
+}
+
+.save-photo-btn {
+  background: #19A89D;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.save-photo-btn:hover {
+  background: #217770;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(25, 168, 157, 0.2);
+}
+
+.save-photo-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.photo-size-info {
+  font-size: 0.8rem;
+  color: #989898;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* --- DETAILS SECTION REFINEMENTS --- */
+.profile-details-section {
+  flex-grow: 1;
+  width: 100%;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem; /* Reduced margin */
+}
+
+/* Uppercase for a classic, clean label style */
+.detail-label {
+  font-size: 0.75rem;
+  color: #747474;
+  margin-bottom: 0.3rem;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1.05rem; /* Slightly smaller for balance */
+  color: #333; /* Darker text for better readability */
+  font-weight: 400;
+  word-break: break-all;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    align-items: center;
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 1024px){
+  .profile-page {
+    min-height: calc(100vh - 56px);
+  }
+}
