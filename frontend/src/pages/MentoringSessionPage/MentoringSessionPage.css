@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;500;600&display=swap');
+
+.mentoring-session-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  background-color: #f8f9fa;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.page-title {
+  background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  margin: 0 0 2rem 0;
+  width: 100%;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  text-align: left;
+}

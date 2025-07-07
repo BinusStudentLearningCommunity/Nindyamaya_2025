@@ -1,0 +1,86 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #363A3F;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 100;
+  height: 80px;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-brand {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+.brand-nindya {
+  color: white;
+}
+
+.brand-maya {
+  color: #19A89D;
+}
+
+.navbar-community {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.community-binus {
+  color: white;
+}
+
+.community-text {
+  color: #19A89D;
+}
+
+.bslc-logo {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.3rem;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .navbar-community {
+    font-size: 1rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
+
+/* Hamburger menu is only visible on mobile */
+@media (min-width: 1025px) {
+  .hamburger-menu {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .navbar {
+    display: none;
+  }
+}
