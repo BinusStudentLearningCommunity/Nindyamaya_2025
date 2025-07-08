@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.css";
+import toast from "react-hot-toast";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     const formData = {
       email:email,
@@ -27,10 +30,13 @@ const LoginPage: React.FC = () => {
     console.log(data);
     if(res.ok){
       localStorage.setItem('token', data.token);
-      navigate("/home");
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate("/");
+      toast.success('Logged in successfully!');
     }
     else{
       console.log(data.message);
+      setError(data.message);
     }
   };
 
@@ -74,6 +80,8 @@ const LoginPage: React.FC = () => {
               <input type="checkbox" id="remember-me" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} aria-label="Remember Me Checkbox" />
               <label htmlFor="remember-me">Remember Me</label>
             </div>
+
+            {error && <p className="error-message">{error}</p>}
 
             <button type="submit">Login</button>
             <Link to="/forgot-password">Forgot Password</Link>
