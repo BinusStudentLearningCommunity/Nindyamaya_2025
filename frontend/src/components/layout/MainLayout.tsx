@@ -51,7 +51,8 @@ const MainLayout = () => {
         />
         <main className="main-content">
           <div className="page-content">
-            <Outlet />
+            {/* Diganti bagian ini untuk home pagenya */}
+            <Outlet context={{ userRole }} />
           </div>
         </main>
       </div>
