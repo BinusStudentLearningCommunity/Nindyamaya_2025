@@ -5,8 +5,54 @@ const bcrypt = require('bcrypt'); // lib for hashing password
 const jwt = require('jsonwebtoken'); 
 const nodemailer = require('nodemailer'); // lib to send email for pass recovery
 const { v4:uuidv4 } = require('uuid'); // lib for UUID generation
+const multer = require('multer');
+const path = require('path');
+const { promisify } = require('util');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'key';
+
+// --- Multer Configuration ---
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, req.user.userID + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 1024 * 1024 } // 1 MB limit
+});
+
+exports.upload = upload;
+
+exports.uploadProfilePhoto = async (req, res) => {
+    // The 'upload.single('profilePhoto')' middleware puts the file info in req.file
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded.' });
+    }
+
+    const filePath = req.file.path;
+
+    try {
+        await pool.query(
+            'UPDATE User SET profile_picture = ? WHERE user_id = ?',
+            [filePath, req.user.userID]
+        );
+
+        res.status(200).json({
+            message: 'Profile photo updated successfully.',
+            filePath: filePath
+        });
+
+    } catch (error) {
+        console.error('Error updating profile photo:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 exports.login =  async(req,res) =>{
     const {email , password, rememberMe} = req.body;
@@ -16,7 +62,7 @@ exports.login =  async(req,res) =>{
     try{
         const [rows] = await pool.query('SELECT * FROM User WHERE email = ?', [email]);
         if (rows.length === 0){
-            return res.status(401).json({message:'Email not found !'});
+            return res.status(401).json({message:'Email not found!'});
         }
         const user = rows[0]; 
         const isMatch = await bcrypt.compare(password,user.password);
@@ -42,12 +88,25 @@ exports.login =  async(req,res) =>{
             });
         }
         else{
-            return res.status(401).json({message:'Password doesnt match !'})
+            return res.status(401).json({message:'Password doesnt match!'})
         }
     }
     catch{
         consoler.error(error)
         res.status(500).json({message:'Internal server error'})
+    }
+};
+
+exports.getUserProfile = async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty, profile_picture FROM User WHERE user_id = ?', [req.user.userID]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
@@ -129,6 +188,47 @@ exports.createUser = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+exports.getUserRoles = async (req, res) => {
+    try {
+        const userId = req.user.userID;
+
+        const [roles] = await pool.query(
+            `SELECT ur.role, s.start_date, s.end_date
+             FROM userrole ur
+             JOIN semester s ON ur.semester_id = s.semester_id
+             WHERE ur.user_id = ?`,
+            [userId]
+        );
+
+        let currentRole = 'mentee'; // Default role
+        const today = new Date();
+
+        for (const record of roles) {
+            const startDate = new Date(record.start_date);
+            const endDate = new Date(record.end_date);
+            if (today >= startDate && today <= endDate) {
+                currentRole = record.role;
+                break;
+            }
+        }
+
+        const allRoles = [...new Set(roles.map(record => record.role))];
+
+        res.json({
+            currentRole,
+            allRoles
+        });
+
+    } catch (error) {
+        console.error('Error fetching user roles:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
+
+
 
 // Update an existing user
 exports.updateUser = async (req, res) => {

@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, Home, BookOpen, User, Users, FilePlus, UserCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../CustomDialog';
 import { Button } from '../../CustomButton';
 import './Sidebar.css';
+import toast from 'react-hot-toast';
 
 interface User {
   name: string;
@@ -14,13 +15,15 @@ interface User {
 interface SidebarProps {
   user: User;
   role: 'mentor' | 'mentee';
+  allRoles: string[];
   onRoleChange?: (newRole: 'mentor' | 'mentee') => void;
   isOpen?: boolean;
   onToggle?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = true, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ user, role, allRoles, onRoleChange, isOpen = true, onToggle }) => {
   const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const navigate = useNavigate();
   
   const commonLinks = [
     { name: 'Home', path: '/', icon: <Home size={18} /> },
@@ -43,6 +46,10 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = tr
   const mentoringLinks = role === 'mentor' ? mentorLinks : menteeLinks;
 
   const handleRoleChange = () => {
+    if (allRoles.length < 2) {
+      toast.error("You are not eligible to switch roles.");
+      return;
+    }
     setShowRoleDialog(true);
   };
 
@@ -50,6 +57,13 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = tr
     const newRole = role === 'mentor' ? 'mentee' : 'mentor';
     onRoleChange?.(newRole);
     setShowRoleDialog(false);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    navigate('/login');
   };
 
   return (
@@ -66,7 +80,6 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = tr
           <div className="profile-content">
             <div className="role-tag">{role}</div>
             <h3 className="profile-name">{user.name}</h3>
-            <p className="profile-major">{user.major}</p>
           </div>
         </div>
 
@@ -107,10 +120,10 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = tr
         </nav>
 
         <div className="sidebar-footer">
-          <Link to="/login" className="signout-button">
+          <button onClick={handleSignOut} className="signout-button">
             <LogOut size={18} />
             <span>Sign Out</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

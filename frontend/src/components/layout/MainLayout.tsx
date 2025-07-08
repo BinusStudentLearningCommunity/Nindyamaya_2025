@@ -2,17 +2,42 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar/Sidebar';
 import Navbar from './Navbar/Navbar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './MainLayout.css';
 
 const MainLayout = () => {
-  const [userRole, setUserRole] = useState<'mentor' | 'mentee'>('mentee');
+  const [user, setUser] = useState(null);
+  const [viewingRole, setViewingRole] = useState<'mentor' | 'mentee'>('mentee');
+  const [allRoles, setAllRoles] = useState<string[]>([]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const mockUser = {
-    name: 'Michelle Lydia Sugainto',
-    major: 'Computer Science & Mathematic',
-  };
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const fetchRoles = async () => {
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5000/api/users/roles', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setViewingRole(data.currentRole);
+            setAllRoles(data.allRoles);      
+          }
+        } catch (error) {
+          console.error("Failed to fetch roles", error);
+        }
+      }
+    };
+
+    fetchRoles();
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -42,13 +67,16 @@ const MainLayout = () => {
       )}
 
       <div className="layout-content">
-        <Sidebar 
-          user={mockUser} 
-          role={userRole} 
-          onRoleChange={setUserRole}
-          isOpen={sidebarOpen}
-          onToggle={toggleSidebar}
-        />
+        {user && (
+          <Sidebar
+            user={user}
+            role={viewingRole}
+            allRoles={allRoles}
+            onRoleChange={setViewingRole}
+            isOpen={sidebarOpen}
+            onToggle={toggleSidebar}
+          />
+        )}
         <main className="main-content">
           <div className="page-content">
             <Outlet />
