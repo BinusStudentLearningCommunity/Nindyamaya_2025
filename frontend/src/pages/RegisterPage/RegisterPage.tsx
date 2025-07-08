@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./RegisterPage.css";
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -15,6 +16,7 @@ const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (!email.endsWith("@binus.ac.id")) {
       setError("Please use a valid BINUS University email (@binus.ac.id).");
@@ -49,12 +51,11 @@ const RegisterPage: React.FC = () => {
 
     const data = await res.json()
     
-    if(data.ok){
-        alert(`Registered with email: ${email}`);
-      navigate("/");
-    }
-    else{
-      console.log(data);// If email or nim already exists
+    if (res.ok) {
+        toast.success('Registered successfully! Please log in.');
+        navigate("/login");
+    } else {
+      setError(data.message);
     }
   };
 

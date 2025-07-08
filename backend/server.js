@@ -20,6 +20,7 @@ const PORT = process.env.PORT;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // Test DB connection (runs once when server starts)
 pool.getConnection()

@@ -1,0 +1,51 @@
+.not-found-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.not-found-container {
+  max-width: 500px;
+  padding: 2rem;
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #19A89D; /* Using your theme's primary color */
+  margin: 0;
+}
+
+.error-messages {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0.5rem;
+}
+
+.error-description {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.home-link {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.home-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(25, 168, 157, 0.3);
+}
