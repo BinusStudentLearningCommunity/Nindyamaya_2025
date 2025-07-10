@@ -18,7 +18,6 @@ const HomePage: React.FC = () => {
         slidesToShow: 1,
         slidesToScroll: 1,
         arrows: false,
-        appendDots: dots => <div style={{ marginTop: "1rem" }}>{dots}</div>,
     };
 
 

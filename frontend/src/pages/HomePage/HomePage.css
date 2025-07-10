@@ -29,6 +29,8 @@
   padding: 0 0 0 1.3125rem;
 }
 
+/* Mentee */
+
 .span-first-mentee {
   color: #D7E026;
 }
@@ -50,6 +52,8 @@
   background: linear-gradient(to right, #CED729, #DDE629);
   transform: scale(1.03);
 }
+
+/* Mentor */
 
 .first-section {
   text-align: left;
@@ -132,6 +136,7 @@
   box-shadow: 0 0 20px #19A89D;
   border: none;
   cursor: pointer;
+  text-align: center;
   transition: background 0.3s ease;
 }
 
@@ -150,6 +155,7 @@
   box-shadow: 0 0 20px #81C567;
   border: none;
   cursor: pointer;
+  text-align: center;
   transition: background 0.3s ease;
 }
 
@@ -204,20 +210,9 @@
   padding-bottom: 1rem;
 }
 
-.slick-dots li {
-  margin: 0;
-}
-
-.slick-dots li button {
-  display: block;
-  font-size: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #ccc;
-  border: none;
-  padding: 0;
-  transition: all 0.3s ease;
+.slick-dots li button::before {
+  display: none !important;
+  content: none !important;
 }
 
 .slick-dots li:not(.slick-active) button {
@@ -320,13 +315,15 @@
 .third-section button {
   background: linear-gradient(to right, #313131 0%, #1B1B1B 100%);
   color: #EDEDED;
-  padding: 0.5rem 1.6875rem;
+  padding: 0.3rem 1.6875rem;
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
   border: none;
   cursor: pointer;
+  text-align: center;
   transition: background 0.3s ease;
+  white-space: nowrap;
 }
 
 .third-section button:hover {
@@ -341,7 +338,7 @@
 
   .second-section,
   .third-section {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 1.5rem;
     padding: 1rem 1rem;
   }
@@ -380,6 +377,10 @@
   .first-section,
   .third-section .mentee-title {
     font-size: 1rem;
+  }
+
+  .third-section {
+    flex-direction: column-reverse !important;
   }
 
   .table-section th,
@@ -426,8 +427,12 @@
     min-width: 450px;
   }
 
+  .third-section {
+    flex-direction: column-reverse !important;
+  }
+
   .slick-dots {
-    gap: 6px;
+    gap: 2px;
   }
 
   .slick-dots li button {
