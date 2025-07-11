@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./RegisterPage.css";
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -13,11 +14,17 @@ const RegisterPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (!email.endsWith("@binus.ac.id")) {
       setError("Please use a valid BINUS University email (@binus.ac.id).");
+      return;
+    }
+
+    if (password.length < 8 || confirmPassword.length < 8){
+      setError('Password length must be at least 8 characters.');
       return;
     }
 
@@ -26,11 +33,30 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    setError("");
-    console.log("Passwords match!");
-    alert(`Registered with email: ${email}`);
+    console.log("Passwords match %s",password);
+    const userData = {
+      name,
+      email,
+      nim,
+      faculty: schoolFaculty,
+      password
+    };
 
-    navigate("/");
+    // TODO: replace link
+    const res = await fetch('http://localhost:5000/api/users/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(userData)
+    })
+
+    const data = await res.json()
+    
+    if (res.ok) {
+        toast.success('Registered successfully! Please log in.');
+        navigate("/login");
+    } else {
+      setError(data.message);
+    }
   };
 
   return (

@@ -1,17 +1,45 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
-  const [userData] = useState({
-    name: 'Michelle Lydia Sugainto',
-    nim: '2108920301',
-    email: 'user@gmail.com',
-    schoolFaculty: 'School of Computer Science',
+  const [userData, setUserData] = useState({
+      name: '',
+      nim: '',
+      email: '',
+      faculty: '',
+      profile_picture: null,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const response = await fetch('http://localhost:5000/api/users/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserData(data);
+                    if (data.profile_picture) {
+                        setProfileImage(`http://localhost:5000/${data.profile_picture.replace(/\\/g, '/')}`);
+                    }
+                } else {
+                    console.error('Failed to fetch user profile');
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,19 +52,36 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleSavePhoto = () => {
-    if (selectedFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setProfileImage(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(selectedFile);
-      // Reset file selection after saving
-      setSelectedFile(null);
-      setFileName('No file chosen');
-    }
+  const handleSavePhoto = async () => {
+      if (!selectedFile) return;
+
+      const formData = new FormData();
+      formData.append('profilePhoto', selectedFile);
+
+      const token = localStorage.getItem('token');
+
+      try {
+          const response = await fetch('http://localhost:5000/api/users/profile/photo', {
+              method: 'PUT',
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              },
+              body: formData
+          });
+
+          if (response.ok) {
+              const data = await response.json();
+              setProfileImage(`http://localhost:5000/${data.filePath.replace(/\\/g, '/')}`);
+              alert('Photo updated successfully!');
+              setSelectedFile(null);
+              setFileName('No file chosen');
+          } else {
+              alert('Failed to upload photo.');
+          }
+      } catch (error) {
+          console.error('Error uploading photo:', error);
+          alert('An error occurred while uploading the photo.');
+      }
   };
 
   return (
@@ -74,7 +119,7 @@ const ProfilePage: React.FC = () => {
               Save Photo
             </button>
           )}
-          <p className="photo-size-info">Maximum size: 10 MB</p>
+          <p className="photo-size-info">Maximum size: 1 MB</p>
         </div>
         
         <div className="profile-details-section">
@@ -92,7 +137,7 @@ const ProfilePage: React.FC = () => {
           </div>
           <div className="detail-item">
             <span className="detail-label">School / Faculty</span>
-            <span className="detail-value">{userData.schoolFaculty}</span>
+            <span className="detail-value">{userData.faculty}</span>
           </div>
         </div>
       </div>

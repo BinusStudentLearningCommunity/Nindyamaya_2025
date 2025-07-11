@@ -9,6 +9,8 @@ import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import MentoringSessionPage from "./pages/MentoringSessionPage/MentoringSessionPage";
 import CreateSessionPage from "./pages/CreateSessionPage/CreateSessionPage";
 import MyMenteePage from "./pages/MyMenteePage/MyMenteePage";
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
+import ProtectedRoute from './components/ProtectedRoutes';
 
 function App() {
   return (
@@ -19,18 +21,20 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       {/* routes using layout (need authentication) */}      
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="mentoring-session" element={<MentoringSessionPage />} />
-        
-        {/* Mentor-only routes */}
-        <Route path="create-session" element={<CreateSessionPage />} />
-        <Route path="my-mentee" element={<MyMenteePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="mentoring-session" element={<MentoringSessionPage />} />
+          
+          {/* Mentor-only routes */}
+          <Route path="create-session" element={<CreateSessionPage />} />
+          <Route path="my-mentee" element={<MyMenteePage />} />
+        </Route>
       </Route>
 
-
-
+      {/* Catch-all route for 404 Not Found pages */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

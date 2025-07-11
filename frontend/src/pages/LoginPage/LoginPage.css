@@ -153,6 +153,19 @@ a:hover {
   color: black;
 }
 
+.error-message {
+  color: #D8000C;
+  background-color: #FFD2D2;
+  border: 1px solid #D8000C;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 20px;
+  margin-bottom: -20px;
+  text-align: center;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
 @media (max-width: 740px) {
   .hero-section {
     display: none;
