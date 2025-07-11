@@ -38,7 +38,7 @@
 .button-section .button-first-mentee {
   background: linear-gradient(to right, #DDE629 0%, #CED729 100%);
   color: #767B18;
-  padding: 0.5rem 1.6875rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -129,7 +129,7 @@
 .button-section .button-first {
   background: linear-gradient(to right, #26E4D5 0%, #198C83 100%);
   color: #0F6C65;
-  padding: 0.5rem 1.6875rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -148,7 +148,7 @@
 .button-section .button-second {
   background: linear-gradient(to right, #85E064 0%, #5AA241 100%);
   color: #428629;
-  padding: 0.5rem 1.6875rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -397,7 +397,7 @@
   .button-section .button-second,
   .button-section .button-first-mentee {
     font-size: 0.8rem;
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 0.5rem;
   }
 
   .third-section .mentee-name {
