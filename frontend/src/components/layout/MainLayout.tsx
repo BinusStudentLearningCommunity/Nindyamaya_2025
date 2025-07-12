@@ -79,7 +79,7 @@ const MainLayout = () => {
         )}
         <main className="main-content">
           <div className="page-content">
-            <Outlet />
+            <Outlet context={{ role: viewingRole }} />
           </div>
         </main>
       </div>
