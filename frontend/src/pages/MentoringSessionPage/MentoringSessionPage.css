@@ -20,3 +20,160 @@
   font-weight: 500;
   text-align: left;
 }
+
+.create-session-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  background-color: #f8f9fa;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page-title {
+  background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  margin: 0 0 2rem 0;
+  width: 100%;
+  font-weight: 500;
+  text-align: left;
+}
+
+.table-wrapper {
+  padding: 0 1rem 2rem 1rem;
+  overflow-x: auto;
+}
+
+.mentoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  
+}
+
+.mentoring-table th,
+.mentoring-table td {
+  
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.mentoring-table th {
+  background-color: #e9ecef;
+  font-weight: 600;
+  color: #495057;
+}
+
+.col-no {
+  width: 5%;
+  min-width: 50px;
+  text-align: center;
+}
+
+.col-mentor {
+  width: 30%;
+  min-width: 200px;
+}
+
+.col-mentee {
+  width: 40%;
+  min-width: 150px;
+}
+
+.col-course {
+  width: 15%;
+  min-width: 180px;
+}
+
+.col-action {
+  width: 10%;
+  min-width: 60px;
+  text-align: center;
+}
+
+.table-controls {
+  display: flex;
+  margin: 0 0 1rem 1rem;
+  padding: 1rem 1rem;
+  gap: 5rem;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.show-control,
+.search-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.show-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.show-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.show-arrow {
+  position: relative;
+  right: 0.75rem;
+  pointer-events: none;
+  font-size: 0.9rem;
+  color: #000;
+}
+
+.show-select,
+.search-input {
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: white;
+  line-height: 1.5;
+  height: 2.25rem; /* Set a consistent height */
+  box-sizing: border-box;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 0.4rem 2rem 0.4rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.search-icon {
+  position: relative;
+  right: 0.75rem;
+  font-size: 1rem;
+  color: #aaa;
+}
+
+
+.view-button {
+  background-color: #19A89D;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.view-button:hover {
+  background-color: #157f76;
+}
