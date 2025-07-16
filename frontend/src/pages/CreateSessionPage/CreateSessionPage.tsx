@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './CreateSessionPage.css';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
 
 const CreateSessionPage: React.FC = () => {
-     const [userData, setUserData] = useState({
+    const [userData, setUserData] = useState({
       name: '',
       nim: '',
       email: '',
@@ -35,11 +36,50 @@ const CreateSessionPage: React.FC = () => {
     fetchUserProfile();
   }, []);
     return (
-            <div className="create-session-page">
-                
-                <h1 className="page-title">Create Session</h1>
-                
+        <div className="create-session-page">
+            <div className='sidebar'>
+                <Sidebar user={userData} role="mentor" allRoles={[]}/>
             </div>
+
+            <div className='content'>
+
+                <h1 className="page-title">Profile</h1>
+
+                <div className="create-session-container">
+
+                    <form className='create-session-form'>
+                        <h1>Session Detail</h1>
+
+                        <div>
+                            <label htmlFor="course">Course</label>
+                            <input type="text" id="course" name="course" />
+                        </div>
+
+                        <div>
+                            <label htmlFor="date">Start Time</label>
+                            <input type="date" id="start-time" name="start-time" />
+                        </div>
+
+                        <div>
+                            <label htmlFor="date">End Time</label>
+                            <input type="date" id="End-time" name="End-time" />
+                        </div>
+
+                        <div>
+                            <label htmlFor="platform">Platform</label>
+                            <input type="text" id="platform" name="platform" />
+                        </div>
+
+
+                    </form>
+
+                    <div>
+                        <button type="button">Cancel</button>
+                        <button type="submit">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 };
 
