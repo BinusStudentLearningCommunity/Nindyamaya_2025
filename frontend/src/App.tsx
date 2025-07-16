@@ -11,6 +11,7 @@ import CreateSessionPage from "./pages/CreateSessionPage/CreateSessionPage";
 import MyMenteePage from "./pages/MyMenteePage/MyMenteePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import ProtectedRoute from './components/ProtectedRoutes';
+import EditSessionPage from "./pages/EditSessionPage/EditSessionPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           
           {/* Mentor-only routes */}
           <Route path="create-session" element={<CreateSessionPage />} />
+          <Route path="edit-session" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
         </Route>
       </Route>
