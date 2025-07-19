@@ -6,7 +6,7 @@ const db = require("../config/db");
  * @access  Private (membutuhkan autentikasi)
  */
 const getHomePageData = async (req, res) => {
-  const { userId } = req.user;
+  const { userID: userId } = req.user;
 
   if (!userId) {
     return res
@@ -42,21 +42,22 @@ const getHomePageData = async (req, res) => {
     if (userRoles.length === 0) {
       return res
         .status(403)
-        .json({ message: "Role untuk semester aktif tidak ditemukan." });
+        .json({ message: "Terima kasih sudah login ke Nindyamaya. Mohon ditunggu untuk pairing dengan mentor." });
     }
     const role = userRoles[0].role;
 
-    if (role === "Mentor") {
+    if (role === "mentor") {
       const [sessions] = await db.query(
         `SELECT session_id, course_name, platform, session_date as date, start_time, end_time 
                  FROM mentoringsession 
                  WHERE mentor_user_id = ? AND semester_id = ?
-                 ORDER BY session_date ASC, start_time ASC`,
+                 ORDER BY session_date DESC, start_time DESC
+                 LIMIT 4`,
         [userId, activeSemesterId]
       );
 
       const [mentees] = await db.query(
-        `SELECT u.user_id, u.name, u.email, u.phone, u.profile_picture 
+        `SELECT u.user_id, u.name, u.email, u.faculty, u.profile_picture 
                  FROM user u
                  JOIN pairing p ON u.user_id = p.mentee_user_id
                  WHERE p.mentor_user_id = ? AND p.semester_id = ?`,
@@ -64,18 +65,18 @@ const getHomePageData = async (req, res) => {
       );
 
       res.json({
-        role: "Mentor",
+        role: role,
         upcoming_sessions: sessions,
         my_mentees: mentees,
       });
-    } else if (role === "Member" || role === "Mentee") {
+    } else if (role === "mentee") {
       const [sessions] = await db.query(
-        `SELECT ms.session_id, ms.course_name, ms.platform, ms.session_date as date, ms.start_time, ms.end_time, u.name as mentor_name
-                 FROM mentoringsession ms
-                 JOIN mentoringsessionattendance msa ON ms.session_id = msa.session_id
-                 JOIN user u ON ms.mentor_user_id = u.user_id
-                 WHERE msa.mentee_user_id = ? AND ms.semester_id = ?
-                 ORDER BY ms.session_date ASC, ms.start_time ASC`,
+        `SELECT m.session_id, m.course_name, m.platform, m.session_date as date, m.start_time, m.end_time 
+                 FROM mentoringsession m
+                 JOIN pairing p ON m.mentor_user_id = p.mentor_user_id
+                 WHERE p.mentee_user_id = ? AND p.semester_id = ?
+                 ORDER BY m.session_date DESC, m.start_time DESC
+                 LIMIT 6`,
         [userId, activeSemesterId]
       );
 

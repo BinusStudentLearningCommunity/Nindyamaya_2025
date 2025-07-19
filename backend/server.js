@@ -34,6 +34,8 @@ pool.getConnection()
         process.exit(1);
     });
 
+app.use('/uploads', express.static('uploads'));
+
 // Basic Test Route
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Nindyamaya Backend API!' });
