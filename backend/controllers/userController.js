@@ -171,21 +171,48 @@ exports.createUser = async (req, res) => {
             missing: missingFields,
         });
     }
+
+    let connection;
+
     try {
-        const hashedPassword = await bcrypt.hash(password,10);// hashed password (10 is the saltround) 
-        const id = uuidv4(); // ID generation using UUIDv4
-        const [result] = await pool.query(
-            'INSERT INTO User (user_id, name, email, nim, faculty, password) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, name, email, nim, faculty, hashedPassword]
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [userResult] = await connection.query(
+            'INSERT INTO User (name, email, nim, faculty, password) VALUES (?, ?, ?, ?, ?)',
+            [name, email, nim, faculty, hashedPassword]
         );
-        res.status(201).json({ message: 'User created successfully', userId: id});
+        const newUserId = userResult.insertId;
+        const [activeSemesters] = await connection.query(
+            'SELECT semester_id FROM semester WHERE NOW() BETWEEN start_date AND end_date LIMIT 1'
+        );
+
+        if (activeSemesters.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ message: "Registration failed: No active semester found." });
+        }
+        const activeSemesterId = activeSemesters[0].semester_id;
+
+        await connection.query(
+            'INSERT INTO userrole (user_id, semester_id, role) VALUES (?, ?, ?)',
+            [newUserId, activeSemesterId, 'mentee']
+        );
+
+        await connection.commit();
+
+        res.status(201).json({ message: 'User created successfully and assigned as mentee.', userId: newUserId });
+
     } catch (error) {
+        if (connection) await connection.rollback();
+
         console.error('Error creating user:', error);
-        // Handle specific errors like duplicate email if needed
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ message: 'Email or NIM already exists.' });
         }
         res.status(500).json({ message: 'Internal Server Error' });
+    } finally {
+        if (connection) connection.release();
     }
 };
 
