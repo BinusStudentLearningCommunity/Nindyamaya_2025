@@ -4,126 +4,23 @@
   width: 100%;
   min-height: calc(100vh - 80px);
   background-color: #f8f9fa;
+  padding: 0;
   margin: 0;
   overflow-y: auto;
-  display: flex;
-  flex-direction: row;
-}
-
-.content {
-  flex: 1;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-  background: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 20px 20px;
-  width: 100%;
 }
 
 .page-title {
   background: linear-gradient(135deg, #19A89D 0%, #217770 100%);
   color: white;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
   font-size: 1.2rem;
-  
+  margin: 0 0 2rem 0;
   width: 100%;
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 500;
   text-align: left;
-  
-  border-radius: 12px;
 }
 
-
-.create-session-container {
-  background-color: #f0f0f0;
-  padding: 2.5rem;
-  border-radius: 24px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* The form */
-.create-session-form {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-items: flex-start;
-  width: 100%;
-}
-
-.create-session-form h1 {
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
-  color: #4a4a4a;
-  font-weight: bold;
-  text-align: left;
-}
-
-.create-session-form div {
-  margin-bottom: 1.2rem;
-  width: 100%;
-}
-
-.create-session-form label {
-  display: block;
-  text-align: left;
-  font-size: 0.95rem;
-  margin-bottom: 0.4rem;
-  color: #555;
-}
-
-.create-session-form input {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: white;
-  font-size: 1rem;
-}
-
-/* Button section */
-.create-session-container > div {
-  margin-top: 10rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 50%;
-  margin-left: auto;
-  
-}
-
-/* Cancel and Confirm buttons */
-button[type="button"], button[type="submit"] {
-  width: 48%;
-  padding: 0.6rem;
-  font-size: 0.95rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-button[type="button"] {
-  background-color: #e74c3c;
-  color: white;
-}
-
-button[type="button"]:hover {
-  background-color: #c0392b;
-}
-
-button[type="submit"] {
-  background-color: #27ae60;
-  color: white;
-}
-
-button[type="submit"]:hover {
-  background-color: #1e8449;
+.abc {
+  display: 'flex',
 }
