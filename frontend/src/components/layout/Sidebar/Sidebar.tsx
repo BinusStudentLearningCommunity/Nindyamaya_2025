@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOut, Home, BookOpen, User, Users, FilePlus, UserCheck } from 'lucide-react';
+import { LogOut, Home, BookOpen, User, Users, FilePlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../CustomDialog';
 import { Button } from '../../CustomButton';
 import './Sidebar.css';
-import toast from 'react-hot-toast';
 
 interface User {
   name: string;
@@ -21,7 +20,7 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, role, allRoles, onRoleChange, isOpen = true, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = true, onToggle }) => {
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const navigate = useNavigate();
   
@@ -45,13 +44,13 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, allRoles, onRoleChange, i
 
   const mentoringLinks = role === 'mentor' ? mentorLinks : menteeLinks;
 
-  const handleRoleChange = () => {
-    if (allRoles.length < 2) {
-      toast.error("You are not eligible to switch roles.");
-      return;
-    }
-    setShowRoleDialog(true);
-  };
+  // const handleRoleChange = () => {
+  //   if (allRoles.length < 2) {
+  //     toast.error("You are not eligible to switch roles.");
+  //     return;
+  //   }
+  //   setShowRoleDialog(true);
+  // };
 
   const confirmRoleChange = () => {
     const newRole = role === 'mentor' ? 'mentee' : 'mentor';
@@ -112,10 +111,10 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, allRoles, onRoleChange, i
                 <span>{link.name}</span>
               </NavLink>
             ))}
-            <button className="nav-link change-role-btn" onClick={handleRoleChange}>
+            {/* <button className="nav-link change-role-btn" onClick={handleRoleChange}>
               <UserCheck size={18} />
               <span>Change Role</span>
-            </button>
+            </button> */}
           </div>
         </nav>
 

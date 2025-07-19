@@ -11,6 +11,7 @@ const pairingRoutes = require('./routes/pairings');
 const sessionRoutes = require('./routes/sessions');
 const attendanceRoutes = require('./routes/mentoringSessionAttendance');
 const activityLogRoutes = require('./routes/userActivityLogs');
+const homeRoutes = require('./routes/home'); 
 // const authRoutes = require('./routes/auth');
 // -- other routes
 
@@ -33,6 +34,8 @@ pool.getConnection()
         process.exit(1);
     });
 
+app.use('/uploads', express.static('uploads'));
+
 // Basic Test Route
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Nindyamaya Backend API!' });
@@ -46,9 +49,18 @@ app.use('/api/pairings', pairingRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/home', homeRoutes);
 // -- other routes
 
-// Error handling middleware
+// Error handling middleware for authentication errors
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauthorizedError' || err.message === 'Unauthorized') {
+        return res.status(401).json({ message: 'Unauthorized: Invalid or missing token.' });
+    }
+    next(err);
+});
+
+// General error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
