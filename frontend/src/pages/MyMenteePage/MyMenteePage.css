@@ -7,6 +7,7 @@
   padding: 0;
   margin: 0;
   overflow-y: auto;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .page-title {
@@ -19,4 +20,244 @@
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 500;
   text-align: left;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mentee-content {
+  padding: 0 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 1.5rem 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.show-entries {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.show-entries label {
+  font-weight: 500;
+}
+
+.show-select {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+  color: #495057;
+  min-width: 70px;
+  cursor: pointer;
+}
+
+.show-select:focus {
+  outline: none;
+  border-color: #19A89D;
+  box-shadow: 0 0 0 0.2rem rgba(25, 168, 157, 0.25);
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-container label {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.search-input {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 250px;
+  background-color: white;
+  color: #495057;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #19A89D;
+  box-shadow: 0 0 0 0.2rem rgba(25, 168, 157, 0.25);
+}
+
+.search-input::placeholder {
+  color: #adb5bd;
+}
+
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  margin-bottom: 1rem;
+}
+
+.mentee-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.mentee-table thead {
+  background-color: #f8f9fa;
+}
+
+.mentee-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.mentee-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.mentee-table tbody tr:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.mentee-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.name-cell {
+  font-weight: 500;
+  color: #343a40;
+}
+
+.email-cell {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #6c757d;
+  background-color: white;
+}
+
+.no-results p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.table-info {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+/* Additional styling for better alignment and spacing */
+.mentee-table th:first-child,
+.mentee-table td:first-child {
+  text-align: center;
+  width: 80px;
+}
+
+.mentee-table th:nth-child(2),
+.mentee-table td:nth-child(2) {
+  min-width: 200px;
+}
+
+.mentee-table th:nth-child(3),
+.mentee-table td:nth-child(3) {
+  min-width: 120px;
+}
+
+.mentee-table th:nth-child(4),
+.mentee-table td:nth-child(4) {
+  min-width: 220px;
+}
+
+.mentee-table th:nth-child(5),
+.mentee-table td:nth-child(5) {
+  min-width: 150px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .mentee-content {
+    padding: 0 1rem 2rem 1rem;
+  }
+  
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .search-container {
+    justify-content: space-between;
+  }
+  
+  .search-input {
+    width: 200px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .mentee-table {
+    min-width: 600px;
+  }
+  
+  .mentee-table th,
+  .mentee-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .search-input {
+    width: 150px;
+  }
+  
+  .mentee-table {
+    min-width: 500px;
+  }
 }
