@@ -180,7 +180,7 @@ textarea,
 select {
   width: 100%;
   padding: 0.8em 1em;
-  margin-bottom: var(--space-md);
+  /* margin-bottom: var(--space-md); */
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   font-family: inherit;

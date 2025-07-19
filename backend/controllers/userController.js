@@ -254,42 +254,33 @@ exports.getUserRoles = async (req, res) => {
 };
 
 
+// My Mentee Page
+exports.getMyMentees = async (req, res) => {
+    const { userID: mentorId } = req.user;
 
-
-
-// Update an existing user
-exports.updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { name, email, nim, faculty } = req.body; 
     try {
-        const [result] = await pool.query(
-            'UPDATE User SET name = ?, email = ?, nim = ?, faculty = ? WHERE user_id = ?',
-            [name, email, nim, faculty, id]
+        const [activeSemesters] = await pool.query(
+            `SELECT semester_id FROM semester WHERE NOW() BETWEEN start_date AND end_date LIMIT 1`
         );
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'User not found or no changes made.' });
-        }
-        res.json({ message: 'User updated successfully' });
-    } catch (error) {
-        console.error(`Error updating user with ID ${id}:`, error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: 'Email or NIM already exists.' });
-        }
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
 
-// Delete a user
-exports.deleteUser = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [result] = await pool.query('DELETE FROM User WHERE user_id = ?', [id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'User not found.' });
+        if (activeSemesters.length === 0) {
+            return res.status(404).json({ message: "Tidak ada semester yang sedang aktif saat ini." });
         }
-        res.json({ message: 'User deleted successfully' });
+        const activeSemesterId = activeSemesters[0].semester_id;
+
+        const [mentees] = await pool.query(
+            `SELECT u.user_id, u.name, u.nim, u.email, u.faculty 
+             FROM user u
+             JOIN pairing p ON u.user_id = p.mentee_user_id
+             WHERE p.mentor_user_id = ? AND p.semester_id = ?
+             ORDER BY u.name ASC`,
+            [mentorId, activeSemesterId]
+        );
+
+        res.json(mentees);
+
     } catch (error) {
-        console.error(`Error deleting user with ID ${id}:`, error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error("Error fetching my mentees:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server." });
     }
 };
