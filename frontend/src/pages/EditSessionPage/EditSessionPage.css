@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;500;600&display=swap');
+
+.mentoring-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  background-color: #f8f9fa;
+  margin: 0;
+  overflow-y: auto;
+}
+
+/* Subsection Label */
+.mentoring-title {
+  background: linear-gradient(135deg, #00b4a0, #008073);
+  color: white;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+/* Main Card Wrapper */
+.mentoring-card {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+/* Header Section */
+.mentoring-header-table {
+  display: table;
+  width: 100%;
+  background-color: #e0e0e0;
+  table-layout: fixed;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.header-cell {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 1rem 1.5rem;
+}
+
+.title-cell {
+  width: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
+  text-align: left;
+}
+
+.button-cell {
+  width: 50%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.notify-btn {
+  background: #222;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notify-btn:hover {
+  background: #111;
+}
+
+/* Body of the Card */
+.mentoring-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Form Section */
+.session-form {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-form label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
+  text-align: left;
+}
+
+.session-form input {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  width: 100%;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Buttons below form */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 50%;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn.black {
+  background-color: #222;
+  color: white;
+}
+
+.btn.black:hover {
+  background-color: #111;
+}
+
+.btn.green {
+  background-color: #199d91;
+  color: white;
+}
+
+.btn.green:hover {
+  background-color: #157c73;
+}
+
+/* Upload Recording Section */
+.upload-section {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-section h4 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #444;
+  text-align: left;
+}
+
+/* Drag-and-Drop Upload Area */
+.upload-box {
+  flex: 1;
+  min-height: 200px;
+  background-color: #f5f5f5;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #777;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.upload-box:hover {
+  border-color: #199d91;
+}
+
+/* Upload Button */
+.upload-btn {
+  align-self: flex-end;
+  background-color: #222;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  background-color: #111;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+  .mentoring-body {
+    flex-direction: column;
+  }
+
+  .button-cell {
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .notify-btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
