@@ -70,8 +70,8 @@ const CreateSessionPage: React.FC = () => {
                     </form>
 
                     <div>
-                        <button type="button">Cancel</button>
-                        <button type="submit">Confirm</button>
+                        <button id="button-createsession" type="button">Cancel</button>
+                        <button id="submit-createsession" type="submit">Confirm</button>
                     </div>
                 </div>
             </div>
