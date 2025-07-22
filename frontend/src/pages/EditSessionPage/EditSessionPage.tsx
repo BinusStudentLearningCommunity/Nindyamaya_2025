@@ -22,13 +22,18 @@ const EditSessionPage: React.FC = () => {
               </div>
 
               <div>
+                  <label htmlFor="date">Date</label>
+                  <input type="date" id="date" name="date" />
+              </div>
+
+              <div>
                   <label htmlFor="date">Start Time</label>
-                  <input type="date" id="start-time" name="start-time" />
+                  <input type="time" id="start-time" name="start-time" />
               </div>
 
               <div>
                   <label htmlFor="date">End Time</label>
-                  <input type="date" id="End-time" name="End-time" />
+                  <input type="time" id="end-time" name="end-time" />
               </div>
 
               <div>
@@ -44,13 +49,34 @@ const EditSessionPage: React.FC = () => {
 
           <div className="upload-section">
             <h4>Upload Recording</h4>
-            <div className="upload-box">
-              <p>Click to upload or drag and drop</p>
-              <small>Supported format: .mp4 | Max size: 500MB</small>
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              id="fileUpload"
+              accept=".mp4"
+              style={{ display: 'none' }}
+              onChange={(e) => console.log(e.target.files[0])} // Replace with your upload logic
+            />
+
+              {/* Clickable Box */}
+              <div
+                className="upload-box"
+                onClick={() => document.getElementById('fileUpload').click()}
+              >
+                <p>Click to upload or drag and drop</p>
+                <small>Supported format: .mp4 | Max size: 500MB</small>
+              </div>
+
+              <button
+                className="btn black upload-btn"
+                onClick={() => document.getElementById('fileUpload').click()}
+              >
+                Upload
+              </button>
             </div>
-            <button className="btn black upload-btn">Upload</button>
+
           </div>
-        </div>
       </div>
     </div>
   );

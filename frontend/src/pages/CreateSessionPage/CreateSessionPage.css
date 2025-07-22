@@ -73,18 +73,19 @@
 }
 
 /* Button section */
-.create-session-container > div {
+.create-session-container > .button-group {
   margin-top: 10rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 50%;
   margin-left: auto;
-  
+  gap: 1rem;
 }
 
 /* Cancel and Confirm buttons */
-#button-createsession, #submit-createsession {
+#button-createsession,
+#submit-createsession {
   width: 48%;
   padding: 0.6rem;
   font-size: 0.95rem;
@@ -111,4 +112,25 @@
 
 #submit-createsession:hover {
   background-color: #1e8449;
+}
+
+/* Media query for responsiveness */
+@media screen and (max-width: 768px) {
+  .create-session-container {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .create-session-container > .button-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+    margin-left: 0;
+    margin-top: 2rem;
+  }
+
+  #button-createsession,
+  #submit-createsession {
+    width: 100%;
+  }
 }
