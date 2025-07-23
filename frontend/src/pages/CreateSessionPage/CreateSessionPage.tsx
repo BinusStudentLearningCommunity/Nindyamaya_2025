@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CreateSessionPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const CreateSessionPage: React.FC = () => {
     const [userData, setUserData] = useState({
@@ -34,6 +35,18 @@ const CreateSessionPage: React.FC = () => {
     };
     fetchUserProfile();
   }, []);
+
+    const navigate = useNavigate();
+
+    const handleCancel = () => {
+      navigate('/');
+    };
+
+    const handleConfirm = () => {
+      alert('Session creation logic goes here!');
+      navigate('/');
+    };
+
     return (
         <div className="create-session-page">
 
@@ -52,13 +65,18 @@ const CreateSessionPage: React.FC = () => {
                         </div>
 
                         <div>
+                            <label htmlFor="date">Date</label>
+                            <input type="date" id="date" name="date" />
+                        </div>
+
+                        <div>
                             <label htmlFor="date">Start Time</label>
-                            <input type="date" id="start-time" name="start-time" />
+                            <input type="time" id="start-time" name="start-time" />
                         </div>
 
                         <div>
                             <label htmlFor="date">End Time</label>
-                            <input type="date" id="End-time" name="End-time" />
+                            <input type="time" id="end-time" name="End-time" />
                         </div>
 
                         <div>
@@ -69,9 +87,9 @@ const CreateSessionPage: React.FC = () => {
 
                     </form>
 
-                    <div>
-                        <button id="button-createsession" type="button">Cancel</button>
-                        <button id="submit-createsession" type="submit">Confirm</button>
+                    <div class="button-group">
+                        <button id="button-createsession" onClick={handleCancel}>Cancel</button>
+                        <button id="submit-createsession" onClick={handleConfirm}>Confirm</button>
                     </div>
                 </div>
             </div>

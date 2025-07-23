@@ -1,63 +1,91 @@
 import React, { useState } from 'react'
 import '../../pages/MentoringSessionPage/MentoringSessionPage.css'
+import { useNavigate } from 'react-router-dom';
 
 interface Session {
   id: number
-  mentor: string
-  mentee: string
-  date: string
   course: string
+  date: string
+  startTime: string
+  endTime: string
+  platform: string
 }
 
 const allSessions: Session[] = [
   {
     id: 1,
-    mentor: 'Made Abhirama Adwitya Kartika 2702222812',
-    mentee: 'Nama Mentee\nNIM',
-    date: '2025-03-07 12:27:20',
     course: 'Computer Network',
+    date: '2025-03-07',
+    startTime: '12:00',
+    endTime: '14:00',
+    platform: 'Zoom',
   },
   {
     id: 2,
-    mentor: 'Nicholas Tanuwijaya 2602084350',
-    mentee: 'Nama Mentee\nNIM',
-    date: '2025-02-07 20:34:35',
     course: 'Review UAS Business Economics',
+    date: '2025-02-07',
+    startTime: '20:30',
+    endTime: '22:00',
+    platform: 'Google Meet',
   },
   {
     id: 3,
-    mentor: 'Nicholas Tanuwijaya 2602084350',
-    mentee: 'Nama Mentee\nNIM',
-    date: '2025-02-07 20:32:43',
     course: 'Review UAS Management',
+    date: '2025-02-07',
+    startTime: '20:30',
+    endTime: '22:00',
+    platform: 'Google Meet',
   },
   {
     id: 4,
-    mentor: 'Nicholas Tanuwijaya 2602084350',
-    mentee: 'Nama Mentee\nNIM',
-    date: '2025-02-07 20:30:39',
     course: 'Review UAS Accounting',
+    date: '2025-02-07',
+    startTime: '20:30',
+    endTime: '22:00',
+    platform: 'Zoom',
   },
   {
     id: 5,
-    mentor: 'Nicholas Sinclair Alfianto 2702208581',
-    mentee: 'Nama Mentee\nNIM',
-    date: '2025-02-07 18:22:35',
     course: 'Bahas Contoh Soal UAS',
+    date: '2025-02-07',
+    startTime: '18:30',
+    endTime: '20:00',
+    platform: 'Discord',
+  },
+    {
+    id: 6,
+    course: 'Review UAS Data Structures',
+    date: '2025-02-07',
+    startTime: '18:00',
+    endTime: '20:00',
+    platform: 'Zoom',
   },
 ]
 
-const MentoringTable: React.FC = () => {
+interface MentoringTableProps {
+  role: 'mentor' | 'mentee';
+}
+
+const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [rowsToShow, setRowsToShow] = useState(allSessions.length)
+  const navigate = useNavigate();
 
   const filteredSessions = allSessions
     .filter((session) =>
       session.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.mentor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.mentee.toLowerCase().includes(searchTerm.toLowerCase())
+      session.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      session.date.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .slice(0, rowsToShow)
+
+  const handleViewDetails = () => {
+    if (role === 'mentor') {
+      navigate('/edit-session');
+    } else {
+      navigate('/session-attendance'); 
+    }
+  };
 
   return (
     <div className="table-wrapper">
@@ -95,27 +123,23 @@ const MentoringTable: React.FC = () => {
         <thead>
           <tr>
             <th className="col-no">NO</th>
-            <th className="col-mentor">MENTOR</th>
-            <th className="col-mentee">MENTEE</th>
             <th className="col-course">COURSE</th>
+            <th className="col-date">DATE</th>
+            <th className="col-time">TIME</th>
+            <th className="col-platform">PLATFORM</th>
             <th className="col-action">ACTION</th>
           </tr>
         </thead>
         <tbody>
-          {filteredSessions.map((session) => (
+          {filteredSessions.map((session, index) => (
             <tr key={session.id}>
-              <td className="col-no">{session.id}</td>
-              <td className="col-mentor">
-                {session.mentor}
-                <br />
-                {session.date}
-              </td>
-              <td className="col-mentee" style={{ whiteSpace: 'pre-line' }}>
-                {session.mentee}
-              </td>
+              <td className="col-no">{index + 1}</td>
               <td className="col-course">{session.course}</td>
+              <td className="col-date">{session.date}</td>
+              <td className="col-time">{`${session.startTime} - ${session.endTime}`}</td>
+              <td className="col-platform">{session.platform}</td>
               <td className="col-action">
-                <button className="view-button">View Details</button>
+                <button className="view-button" onClick={handleViewDetails}>View Details</button>
               </td>
             </tr>
           ))}
