@@ -10,7 +10,7 @@ import MentoringSessionPage from "./pages/MentoringSessionPage/MentoringSessionP
 import CreateSessionPage from "./pages/CreateSessionPage/CreateSessionPage";
 import MyMenteePage from "./pages/MyMenteePage/MyMenteePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
-import ProtectedRoute from './components/ProtectedRoutes';
+// import ProtectedRoute from './components/ProtectedRoutes';
 import EditSessionPage from "./pages/EditSessionPage/EditSessionPage";
 
 function App() {
@@ -32,6 +32,7 @@ function App() {
           <Route path="create-session" element={<CreateSessionPage />} />
           <Route path="edit-session" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
+          <Route path="session-attendance" element={<NotFoundPage />} />
         </Route>
       {/* </Route> */}
 

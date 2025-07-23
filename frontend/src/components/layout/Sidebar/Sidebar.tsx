@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Home, BookOpen, User, Users, FilePlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../CustomDialog';
 import { Button } from '../../CustomButton';
@@ -23,6 +23,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = true, onToggle }) => {
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   
   const commonLinks = [
     { name: 'Home', path: '/', icon: <Home size={18} /> },
@@ -95,12 +96,31 @@ const Sidebar: React.FC<SidebarProps> = ({ user, role, onRoleChange, isOpen = tr
 
           <div className="nav-section">
             <span className="nav-section-title">MENTORING</span>
-            {mentoringLinks.map(link => (
-              <NavLink to={link.path} key={link.name} className="nav-link" onClick={onToggle}>
-                {link.icon}
-                <span>{link.name}</span>
-              </NavLink>
-            ))}
+            {mentoringLinks.map(link => {
+              if (link.path === '/mentoring-session') {
+                return (
+                  <NavLink
+                    to={link.path}
+                    key={link.name}
+                    className={({ isActive }) =>
+                      isActive || location.pathname.startsWith('/edit-session') || location.pathname.startsWith('/session-attendance')
+                        ? 'nav-link active'
+                        : 'nav-link'
+                    }
+                    onClick={onToggle}
+                  >
+                    {link.icon}
+                    <span>{link.name}</span>
+                  </NavLink>
+                );
+              }
+              return (
+                <NavLink to={link.path} key={link.name} className="nav-link" onClick={onToggle}>
+                  {link.icon}
+                  <span>{link.name}</span>
+                </NavLink>
+              );
+            })}
           </div>
 
           <div className="nav-section">

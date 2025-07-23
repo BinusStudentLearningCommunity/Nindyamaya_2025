@@ -153,9 +153,8 @@
 
 
 .btn {
-  padding: 0.6rem 1.2rem;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -264,6 +263,7 @@
   .form-actions {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
   }
 
 

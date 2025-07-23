@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CreateSessionPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const CreateSessionPage: React.FC = () => {
     const [userData, setUserData] = useState({
@@ -34,6 +35,18 @@ const CreateSessionPage: React.FC = () => {
     };
     fetchUserProfile();
   }, []);
+
+    const navigate = useNavigate();
+
+    const handleCancel = () => {
+      navigate('/');
+    };
+
+    const handleConfirm = () => {
+      alert('Session creation logic goes here!');
+      navigate('/');
+    };
+
     return (
         <div className="create-session-page">
 
@@ -75,8 +88,8 @@ const CreateSessionPage: React.FC = () => {
                     </form>
 
                     <div class="button-group">
-                        <button id="button-createsession">Cancel</button>
-                        <button id="submit-createsession">Confirm</button>
+                        <button id="button-createsession" onClick={handleCancel}>Cancel</button>
+                        <button id="submit-createsession" onClick={handleConfirm}>Confirm</button>
                     </div>
                 </div>
             </div>

@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './EditSessionPage.css';
 
 const EditSessionPage: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const actionButtons = (
+    <div className="form-actions">
+      <button className="btn black">Complete Session</button>
+      <button className="btn green">Cancel Session</button>
+    </div>
+  );
+
   return (
     <div className="mentoring-page">
       <h1 className="page-title">Mentoring Session</h1>
@@ -41,10 +59,7 @@ const EditSessionPage: React.FC = () => {
                   <input type="text" id="platform" name="platform" />
               </div>
 
-            <div className="form-actions">
-              <button className="btn black">Complete Session</button>
-              <button className="btn green">Cancel Session</button>
-            </div>
+            {!isMobile && actionButtons}
           </div>
 
           <div className="upload-section">
@@ -75,7 +90,7 @@ const EditSessionPage: React.FC = () => {
                 Upload
               </button>
             </div>
-
+          {isMobile && actionButtons}
           </div>
       </div>
     </div>
