@@ -10,7 +10,7 @@ import MentoringSessionPage from "./pages/MentoringSessionPage/MentoringSessionP
 import CreateSessionPage from "./pages/CreateSessionPage/CreateSessionPage";
 import MyMenteePage from "./pages/MyMenteePage/MyMenteePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
-import ProtectedRoute from './components/ProtectedRoutes';
+// import ProtectedRoute from './components/ProtectedRoutes';
 import EditSessionPage from "./pages/EditSessionPage/EditSessionPage";
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       {/* routes using layout (need authentication) */}      
-      <Route element={<ProtectedRoute />}>
+      {/* <Route element={<ProtectedRoute />}> */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -32,8 +32,9 @@ function App() {
           <Route path="create-session" element={<CreateSessionPage />} />
           <Route path="edit-session" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
+          <Route path="session-attendance" element={<NotFoundPage />} />
         </Route>
-      </Route>
+      {/* </Route> */}
 
       {/* Catch-all route for 404 Not Found pages */}
       <Route path="*" element={<NotFoundPage />} />
