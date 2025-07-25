@@ -22,7 +22,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       {/* routes using layout (need authentication) */}      
-      {/* <Route element={<ProtectedRoute />}> */}
+      <Route element={<ProtectedRoute />}>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -33,7 +33,7 @@ function App() {
           <Route path="edit-session" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
         </Route>
-      {/* </Route> */}
+      </Route>
 
       {/* Catch-all route for 404 Not Found pages */}
       <Route path="*" element={<NotFoundPage />} />

@@ -5,6 +5,4 @@ const router = express.Router();
 const attendanceController = require('../controllers/mentoringSessionAttendanceController');
 
 // Implementation of routes for mentoring session attendance
-
-
 module.exports = router;

@@ -188,16 +188,16 @@ exports.createUser = async (req, res) => {
             'SELECT semester_id FROM semester WHERE NOW() BETWEEN start_date AND end_date LIMIT 1'
         );
 
-        if (activeSemesters.length === 0) {
-            await connection.rollback();
-            return res.status(404).json({ message: "Registration failed: No active semester found." });
-        }
-        const activeSemesterId = activeSemesters[0].semester_id;
+        // if (activeSemesters.length === 0) {
+        //     await connection.rollback();
+        //     return res.status(404).json({ message: "Registration failed: No active semester found." });
+        // }
+        // const activeSemesterId = activeSemesters[0].semester_id;
 
-        await connection.query(
-            'INSERT INTO userrole (user_id, semester_id, role) VALUES (?, ?, ?)',
-            [newUserId, activeSemesterId, 'mentee']
-        );
+        // await connection.query(
+        //     'INSERT INTO userrole (user_id, semester_id, role) VALUES (?, ?, ?)',
+        //     [newUserId, activeSemesterId, 'mentee']
+        // );
 
         await connection.commit();
 
