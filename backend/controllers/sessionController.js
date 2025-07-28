@@ -6,7 +6,7 @@ exports.getMentorSessions = async (req, res) => {
         const mentorId = req.user.id;
 
         const [rows] = await db.query(
-            `SELECT session_id, course_name, platform, session_date AS date, start_time, end_time 
+            `SELECT *
              FROM mentoringsession 
              WHERE mentor_user_id = ? 
              ORDER BY session_date DESC, start_time DESC`,
@@ -28,6 +28,29 @@ exports.getMentorSessions = async (req, res) => {
     }
 };
 
+exports.getSessionById = async (req, res) => {
+    const sessionId = req.params.sessionId;
+    try {
+        const [rows] = await db.query(
+            `SELECT *
+             FROM mentoringsession
+                WHERE session_id = ?`,
+            [sessionId]
+        );  
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Mentoring session not found.' });
+        }
+        res.status(200).json({
+            message: 'Mentoring session fetched successfully',
+            data: rows[0]
+        });
+    }
+    catch (error) {
+        console.error('Error fetching mentoring session:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 // Create a new mentoring session
 exports.createMentorSession = async (req, res) => {
     try {
@@ -41,7 +64,7 @@ exports.createMentorSession = async (req, res) => {
         const [result] = await db.query(
             `INSERT INTO mentoringsession (mentor_user_id, course_name, platform, session_date, start_time, end_time) 
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [mentorId, course_name, platform, session_date, start_time, end_time]
+            [mentorId, course_name, platform, session_date, start_time, end_time] // ga ad recording saat create
         );
 
         
@@ -62,26 +85,22 @@ exports.createMentorSession = async (req, res) => {
 exports.editMentorSession = async(req, res) => {
     try {
         // asumsi req.body dari edit session form
-        const { mentor_user_id, course_name, platform, session_date, start_time, end_time } = req.body;
+        const { sessionId, course, platform, session_date, start_time, end_time } = req.body;
 
         // get session id dari mentor id sama course name
         const [session] = await db.query(
-            `SELECT * FROM mentoringsession 
-             WHERE mentor_user_id = ? AND course_name = ?`,
-            [mentor_user_id, course_name]
+            `SELECT * FROM mentoringsession WHERE session_id = ?`, [sessionId]
         );
 
         if (session.length === 0) {
             return res.status(404).json({ message: 'Mentoring session not found.' });
         }
 
-        const sessionId = session[0].session_id;
-
         await db.query (
             `UPDATE mentoringsession
             SET course_name = ?, platform = ?, session_date = ?, start_time = ?, end_time = ?
             WHERE session_id = ?`,
-            [course_name, platform, session_date, start_time, end_time, sessionId]
+            [course, platform, session_date, start_time, end_time, sessionId]
         )
 
         res.status(200).json({ message: 'Mentoring session updated successfully.' });
@@ -122,3 +141,29 @@ exports.deleteMentorSession = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+// Upload session file
+exports.uploadSessionRecording  = async (req, res) => {
+    try{
+        if(!req.file) {
+            return res.status(400).json({ message: 'No file uploaded.' });
+        }
+        const sessionId = req.body.session_id;
+        const mentorId = req.user.id;
+        const fileUrl = `/uploads/recordings/${req.file.filename}`;
+
+        await db.query(`INSERT INTO recordings VALUES (?, ?, ?)` , [fileUrl, mentorId,sessionId]);
+
+        res.status(200).json({
+            message: 'Recording uploaded successfully',
+            file: fileUrl,
+        });
+
+    }
+    catch(error) {
+        console.error('Error uploading session file:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+
+
+}

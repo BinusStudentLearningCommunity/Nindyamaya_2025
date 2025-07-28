@@ -10,7 +10,6 @@ const path = require('path');
 const { promisify } = require('util');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'key';
-
 // --- Multer Configuration ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
