@@ -30,7 +30,7 @@ function App() {
           
           {/* Mentor-only routes */}
           <Route path="create-session" element={<CreateSessionPage />} />
-          <Route path="edit-session" element={<EditSessionPage/>}/>
+          <Route path="edit-session/:sessionId" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
           <Route path="session-attendance" element={<NotFoundPage />} />
         </Route>

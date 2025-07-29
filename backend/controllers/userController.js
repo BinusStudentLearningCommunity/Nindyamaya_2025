@@ -54,46 +54,74 @@ exports.uploadProfilePhoto = async (req, res) => {
     }
 };
 
-exports.login =  async(req,res) =>{
-    const {email , password, rememberMe} = req.body;
-    if(!email || !password){
-        return res.status(400).json({message: 'Email or password required !' });
+exports.login = async (req, res) => {
+    const { email, password, rememberMe } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required.' });
     }
-    try{
-        const [rows] = await pool.query('SELECT * FROM User WHERE email = ?', [email]);
-        if (rows.length === 0){
-            return res.status(401).json({message:'Email not found!'});
+    
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const [userRows] = await connection.query('SELECT * FROM user WHERE email = ?', [email]);
+        if (userRows.length === 0) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
         }
-        const user = rows[0]; 
-        const isMatch = await bcrypt.compare(password,user.password);
+        
+        const user = userRows[0];
+        const isMatch = await bcrypt.compare(password, user.password);
 
-        if(isMatch){
-            const payload = {
-                userID:user.user_id,
-                email:email,
-                name:user.name
-            }
-            const token = jwt.sign(
-                payload,
-                JWT_SECRET,
-                {expiresIn : rememberMe ? '30d' : '2h'}
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        // --- FIX: Fetch the user's current role ---
+        const [activeSemesters] = await connection.query(
+            `SELECT semester_id FROM semester WHERE NOW() BETWEEN start_date AND end_date LIMIT 1`
+        );
+        
+        let userRole = 'mentee'; // Default role if not found or no active semester
+        if (activeSemesters.length > 0) {
+            const activeSemesterId = activeSemesters[0].semester_id;
+            const [roleRows] = await connection.query(
+                'SELECT role FROM userrole WHERE user_id = ? AND semester_id = ? LIMIT 1',
+                [user.user_id, activeSemesterId]
             );
-            return res.status(200).json({message:'Login successful',
-                token,
-                user:{
-                    id:user.user_id,
-                    email:email,
-                    name:user.name
-                }
-            });
+            if (roleRows.length > 0) {
+                userRole = roleRows[0].role;
+            }
         }
-        else{
-            return res.status(401).json({message:'Password doesnt match!'})
-        }
-    }
-    catch{
-        consoler.error(error)
-        res.status(500).json({message:'Internal server error'})
+        // --- End of FIX ---
+
+        const payload = {
+            userID: user.user_id,
+            email: user.email,
+            name: user.name,
+            role: userRole, // Include the role in the token
+        };
+
+        const token = jwt.sign(
+            payload,
+            JWT_SECRET,
+            { expiresIn: rememberMe ? '30d' : '1d' }
+        );
+
+        return res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                id: user.user_id,
+                email: user.email,
+                name: user.name,
+                role: userRole,
+            }
+        });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    } finally {
+        if (connection) connection.release();
     }
 };
 
