@@ -1,91 +1,74 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../pages/MentoringSessionPage/MentoringSessionPage.css'
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface Session {
-  id: number
-  course: string
-  date: string
-  startTime: string
-  endTime: string
-  platform: string
+  session_id: number;
+  course_name: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  platform: string;
+  session_proof: string | null;
 }
-
-const allSessions: Session[] = [
-  {
-    id: 1,
-    course: 'Computer Network',
-    date: '2025-03-07',
-    startTime: '12:00',
-    endTime: '14:00',
-    platform: 'Zoom',
-  },
-  {
-    id: 2,
-    course: 'Review UAS Business Economics',
-    date: '2025-02-07',
-    startTime: '20:30',
-    endTime: '22:00',
-    platform: 'Google Meet',
-  },
-  {
-    id: 3,
-    course: 'Review UAS Management',
-    date: '2025-02-07',
-    startTime: '20:30',
-    endTime: '22:00',
-    platform: 'Google Meet',
-  },
-  {
-    id: 4,
-    course: 'Review UAS Accounting',
-    date: '2025-02-07',
-    startTime: '20:30',
-    endTime: '22:00',
-    platform: 'Zoom',
-  },
-  {
-    id: 5,
-    course: 'Bahas Contoh Soal UAS',
-    date: '2025-02-07',
-    startTime: '18:30',
-    endTime: '20:00',
-    platform: 'Discord',
-  },
-    {
-    id: 6,
-    course: 'Review UAS Data Structures',
-    date: '2025-02-07',
-    startTime: '18:00',
-    endTime: '20:00',
-    platform: 'Zoom',
-  },
-]
 
 interface MentoringTableProps {
   role: 'mentor' | 'mentee';
 }
 
 const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('')
-  const [rowsToShow, setRowsToShow] = useState(allSessions.length)
+  const [rowsToShow, setRowsToShow] = useState(10)
   const navigate = useNavigate();
 
-  const filteredSessions = allSessions
-    .filter((session) =>
-      session.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.date.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, rowsToShow)
+  const filteredSessions = sessions
+  .filter((session) =>
+    session.course_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    session.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    new Date(session.date).toLocaleDateString().toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  .slice(0, rowsToShow);
 
-  const handleViewDetails = () => {
-    if (role === 'mentor') {
-      navigate('/edit-session');
+  const handleViewDetails = (session: Session) => { // Pass the whole session object
+    if (session.session_proof) {
+      // If there is proof, it's "complete", and anyone can view attendance
+      navigate(`/session-attendance/${session.session_id}`);
     } else {
-      navigate('/session-attendance'); 
+      // If no proof, it's "incomplete"
+      if (role === 'mentor') {
+        navigate(`/edit-session/${session.session_id}`);
+      } else {
+        toast.error("This session is not yet complete. Please wait for the mentor to upload proof.");
+      }
     }
-  };
+};
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/sessions', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSessions(response.data);
+      } catch (err) {
+        setError('Failed to fetch mentoring sessions.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
+
+  if (loading) return <p style={{ textAlign: 'center', padding: '2rem' }}>Loading sessions...</p>;
+  if (error) return <p style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</p>;  
 
   return (
     <div className="table-wrapper">
@@ -101,7 +84,7 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
             {[5, 10, 15, 20].map((num) => (
               <option key={num} value={num}>{num}</option>
             ))}
-            <option value={allSessions.length}>All</option>
+            <option value={sessions.length}>All</option>
           </select>
         </div>
 
@@ -132,14 +115,14 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
         </thead>
         <tbody>
           {filteredSessions.map((session, index) => (
-            <tr key={session.id}>
+            <tr key={session.session_id}>
               <td className="col-no">{index + 1}</td>
-              <td className="col-course">{session.course}</td>
-              <td className="col-date">{session.date}</td>
-              <td className="col-time">{`${session.startTime} - ${session.endTime}`}</td>
+              <td className="col-course">{session.course_name}</td>
+              <td className="col-date">{new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+              <td className="col-time">{`${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`}</td>
               <td className="col-platform">{session.platform}</td>
               <td className="col-action">
-                <button className="view-button" onClick={handleViewDetails}>View Details</button>
+                <button className="view-button" onClick={() => handleViewDetails(session)}>View Details</button>
               </td>
             </tr>
           ))}
