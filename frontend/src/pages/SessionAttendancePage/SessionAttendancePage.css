@@ -83,7 +83,7 @@
   flex-direction: column;
 }
 
-.detail-item {
+.detail-item-session {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -218,49 +218,152 @@
   width: 64%;
   border-radius: 1rem;
   box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+  background-color: white; /* Add background color here */
+  border-collapse: collapse; /* Better border handling */
+}
+
+/* Style for both the header and the content rows */
+.attendance-header,
+.attendance-row {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
 }
 
 .attendance-header {
   background-color: #CDCDCD;
   border-radius: 1rem 1rem 0 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 1rem;
+  border-bottom: 1px solid #CDCDCD;
 }
 
+.attendance-row {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.attendance-table div:last-child.attendance-row {
+  border-bottom: none; /* Remove border from the last row */
+}
+
+/* Define widths and alignment for each column */
+.attendance-header p,
+.attendance-row > div {
+  box-sizing: border-box; /* Ensures padding is included in width calculation */
+}
+
+/* Column 1: Photo Profile */
+.attendance-header p:nth-child(1),
+.attendance-row .photo-profile {
+  flex: 0 0 30%;
+  text-align: left;
+  padding-left: 1.5rem;
+}
+
+.attendance-header p:nth-child(1) {
+  padding-left: 2.7rem;
+}
+
+/* Column 2: Mentee */
+.attendance-header p:nth-child(2),
+.attendance-row .mentee-name {
+  flex: 1 1 45%;
+  text-align: left;
+  padding-left: 2rem;
+}
+
+/* Column 3: Check In Time */
+.attendance-header p:nth-child(3),
+.attendance-row .check-in-time {
+  flex: 1 1 30%;
+  text-align: right;
+  padding-right: 3rem;
+}
+
+
+/* Minor text styling */
 .attendance-header p {
   color: #989898;
   font-size: 1rem;
   font-weight: 600;
-  padding: 0rem 2rem;
 }
 
-.attendance-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #CDCDCD;
-}
-
-.attendance-row .mentee-name, .photo-profile, .check-in-time {
-  padding: 0.5rem 2rem 0rem 1rem;
+.mentee-name p, .check-in-time p {
   color: #989898;
-}
-
-.attendance-row .mentee-name p, .check-in-time p{
-  color: #989898;
-  text-align: left;
+  margin: 0;
 }
 
 .mentee-name .name{
   font-size: 1rem;
+  font-weight: 500;
 }
 
 .mentee-name .nim{
   font-size: 0.875rem;
+}
+
+.confirmation-toast {
+  background-color: white;
+  color: #333;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-align: center;
+  font-family: 'SF Pro Text', sans-serif;
+  max-width: 350px;
+  width: 100%;
+}
+
+.confirmation-toast p {
+  margin: 0 0 16px 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.confirmation-toast-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.toast-button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background-color: #f0f0f0; /* Default/No button */
+  color: #555;
+  transition: background-color 0.2s ease;
+}
+
+.toast-button:hover {
+  background-color: #e0e0e0;
+}
+
+.toast-button.confirm-delete {
+  background-color: #e74c3c; /* Red for destructive action */
+  color: white;
+}
+
+.toast-button.confirm-delete:hover {
+  background-color: #c0392b;
+}
+
+.session-proof-image {
+  width: 95%;
+  height: 95%;
+  object-fit: contain; /* Scales the image to fit without stretching */
+  border-radius: 0.5rem;
+}
+
+.no-proof-text {
+  color: #989898;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-style: italic;
 }
 
 /* Responsive design for tablets and phones */
@@ -327,35 +430,39 @@
     height: 100px;
   }
 
-
-  .attendance-header, .attendance-row {
-    flex-direction: row;
-    align-items: flex-start;
-    margin: 1rem;
-  }
-  
-  .attendance-header {
-    padding: 0rem 1.5rem 1rem 0rem; 
-
+  .attendance-row {
+    flex-direction: row; /* Keep it as a row */
+    align-items: center;
+    margin: 0;
+    padding: 2.5rem;
   }
 
-  .attendance-header p,
-  .attendance-row .mentee-name,
-  .attendance-row .photo-profile,
+  .attendance-row .photo-profile {
+    flex: 0 0 70px; /* Smaller fixed size for photo */
+    padding-left: 0;
+  }
+
+  .attendance-row .mentee-name {
+    flex: 1; /* Allow name to take remaining space */
+    padding-left: 1rem; /* Adjust gap */
+  }
+
   .attendance-row .check-in-time {
-    padding: 0.5rem 3.5rem;
-    width: 100%;
+    flex: 2; /* Give more space for the full date */
+    font-size: 0.8rem; /* Slightly smaller font for the time */
+    padding-right: 0;
+    text-align: right;
   }
 
-  .detail-item {
+  .detail-item-session {
     flex-direction: column;
     gap: 0.25rem;
   }
 
   .confirmation-card,
   .delete-card {
-    max-width: 75%;
-    width: 75%;
+    max-width: 100%; /* Use full width on mobile */
+    width: 100%;
   }
 
   .delete-btn,
