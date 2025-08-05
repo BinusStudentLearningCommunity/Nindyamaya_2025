@@ -12,6 +12,8 @@ import MyMenteePage from "./pages/MyMenteePage/MyMenteePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 // import ProtectedRoute from './components/ProtectedRoutes';
 import EditSessionPage from "./pages/EditSessionPage/EditSessionPage";
+// Session Attendance (Mentee)
+import SessionAttendancePage from "./pages/SessionAttendancePage/SessionAttendancePage";
 
 function App() {
   return (
@@ -32,7 +34,7 @@ function App() {
           <Route path="create-session" element={<CreateSessionPage />} />
           <Route path="edit-session/:sessionId" element={<EditSessionPage/>}/>
           <Route path="my-mentee" element={<MyMenteePage />} />
-          <Route path="session-attendance" element={<NotFoundPage />} />
+          <Route path="session-attendance/:session_id" element={<SessionAttendancePage />} />
         </Route>
       {/* </Route> */}
 
