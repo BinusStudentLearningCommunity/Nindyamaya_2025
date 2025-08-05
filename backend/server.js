@@ -9,9 +9,9 @@ const semesterRoutes = require('./routes/semesters');
 const userRoleRoutes = require('./routes/userRoles');
 const pairingRoutes = require('./routes/pairings');
 const sessionRoutes = require('./routes/sessionRoutes');
-const attendanceRoutes = require('./routes/mentoringSessionAttendance');
 const activityLogRoutes = require('./routes/userActivityLogs');
 const homeRoutes = require('./routes/home'); 
+const attendanceRoutes = require('./routes/attendanceRoutes');
 // const authRoutes = require('./routes/auth');
 // -- other routes
 
@@ -47,9 +47,9 @@ app.use('/api/semesters', semesterRoutes);
 app.use('/api/user-roles', userRoleRoutes);
 app.use('/api/pairings', pairingRoutes);
 app.use('/api/sessions', sessionRoutes);
-app.use('/api/attendance', attendanceRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/home', homeRoutes);
+app.use('/api/attendance', attendanceRoutes);
 // -- other routes
 
 // Error handling middleware for authentication errors
