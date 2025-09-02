@@ -67,6 +67,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`Backend server running on http://localhost:${PORT}`);
+// });
+module.exports = app;
