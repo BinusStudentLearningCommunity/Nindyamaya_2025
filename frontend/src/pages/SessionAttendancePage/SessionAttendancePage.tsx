@@ -170,8 +170,8 @@ const SessionAttendancePage: React.FC = () => {
         });
     };
 
-    const mentorProfileImage = session.mentor.profile_picture ? `http://localhost:5000/${session.mentor.profile_picture}` : null;
-    const sessionProofImage = session.session_proof ? `http://localhost:5000/${session.session_proof}` : null;
+    const mentorProfileImage = session.mentor.profile_picture ? `https://newnindyamaya.bslc.or.id/${session.mentor.profile_picture}` : null;
+    const sessionProofImage = session.session_proof ? `https://newnindyamaya.bslc.or.id/${session.session_proof}` : null;
   
     return (
         <div className="session-attendance-page">
@@ -242,7 +242,7 @@ const SessionAttendancePage: React.FC = () => {
                     <div className='attendance-row' key={attendee.user_id}>
                         <div className='photo-profile'>
                             {attendee.profile_picture ? (
-                                <img src={`http://localhost:5000/${attendee.profile_picture}`} alt={attendee.name} className="profile-image" />
+                                <img src={`https://newnindyamaya.bslc.or.id/${attendee.profile_picture}`} alt={attendee.name} className="profile-image" />
                             ) : (
                                 <div className="photo-placeholder">{/* SVG icon */}</div>
                             )}

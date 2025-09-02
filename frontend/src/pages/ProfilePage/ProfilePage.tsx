@@ -19,7 +19,7 @@ const ProfilePage: React.FC = () => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
-                const response = await fetch('http://localhost:5000/api/users/profile', {
+                const response = await fetch('/api/users/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -28,7 +28,7 @@ const ProfilePage: React.FC = () => {
                     const data = await response.json();
                     setUserData(data);
                     if (data.profile_picture) {
-                        setProfileImage(`http://localhost:5000/${data.profile_picture.replace(/\\/g, '/')}`);
+                        setProfileImage(`https://newnindyamaya.bslc.or.id/${data.profile_picture.replace(/\\/g, '/')}`);
                     }
                 } else {
                     console.error('Failed to fetch user profile');
@@ -61,7 +61,7 @@ const ProfilePage: React.FC = () => {
       const token = localStorage.getItem('token');
 
       try {
-          const response = await fetch('http://localhost:5000/api/users/profile/photo', {
+          const response = await fetch('/api/users/profile/photo', {
               method: 'PUT',
               headers: {
                   'Authorization': `Bearer ${token}`
@@ -71,7 +71,7 @@ const ProfilePage: React.FC = () => {
 
           if (response.ok) {
               const data = await response.json();
-              setProfileImage(`http://localhost:5000/${data.filePath.replace(/\\/g, '/')}`);
+              setProfileImage(`https://newnindyamaya.bslc.or.id/${data.filePath.replace(/\\/g, '/')}`);
               alert('Photo updated successfully!');
               setSelectedFile(null);
               setFileName('No file chosen');

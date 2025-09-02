@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Set the default base URL for all API requests
-axios.defaults.baseURL = 'http://localhost:5000'; // Or your backend URL
+axios.defaults.baseURL = '/'; // Or your backend URL
 
 // Create an interceptor to handle responses
 axios.interceptors.response.use(

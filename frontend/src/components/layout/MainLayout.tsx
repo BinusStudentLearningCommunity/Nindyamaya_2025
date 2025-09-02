@@ -22,7 +22,7 @@ const MainLayout = () => {
     const fetchRoles = async () => {
       if (token) {
         try {
-          const res = await fetch('http://localhost:5000/api/users/roles', {
+          const res = await fetch('/api/users/roles', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {

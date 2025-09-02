@@ -260,7 +260,7 @@ const HomePage: React.FC = () => {
                                                 <td>{index + 1}</td>
                                                 <td>
                                                     <div className="mentee-photo">
-                                                        <img src={`http://localhost:5000/${menteeData.profile_picture}`} alt="Mentee Photo" />
+                                                        <img src={`https://newnindyamaya.bslc.or.id/${menteeData.profile_picture}`} alt="Mentee Photo" />
                                                     </div>
                                                 </td>
                                                 <td>
