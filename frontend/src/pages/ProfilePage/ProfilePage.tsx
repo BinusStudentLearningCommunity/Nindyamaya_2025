@@ -4,14 +4,14 @@ import './ProfilePage.css';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const getImageUrl = (path: string) => {
+const getImageUrl = (path: string | null): string | null => {
   if (!path) return null;
-  // If the path is already a full URL from Cloudinary, use it directly
+  // If the path is a full URL from Cloudinary, use it directly
   if (path.startsWith('http')) {
     return path;
   }
-  // This is for old images. Use your backend's URL.
-  return `https://nindyamaya-backend.vercel.app/${path}`;
+  // This is for old images. Use your backend's URL and handle backslashes.
+  return `https://nindyamaya-backend.vercel.app/${path.replace(/\\/g, '/')}`;
 };
 
 const ProfilePage: React.FC = () => {

@@ -33,14 +33,14 @@ interface PageContext {
   role: 'mentor' | 'mentee';
 }
 
-const getImageUrl = (path: string): string | undefined => {
-  if (!path) return undefined;
-  // If the path is already a full URL from Cloudinary, use it directly
+const getImageUrl = (path: string | null): string | null => {
+  if (!path) return null;
+  // If the path is a full URL from Cloudinary, use it directly
   if (path.startsWith('http')) {
     return path;
   }
-  // This is for old images. Use your backend's URL.
-  return `https://nindyamaya-backend.vercel.app/${path}`;
+  // This is for old images. Use your backend's URL and handle backslashes.
+  return `https://nindyamaya-backend.vercel.app/${path.replace(/\\/g, '/')}`;
 };
 
 const SessionAttendancePage: React.FC = () => {
@@ -251,8 +251,8 @@ const SessionAttendancePage: React.FC = () => {
                 {session.attendees.map(attendee => (
                     <div className='attendance-row' key={attendee.user_id}>
                         <div className='photo-profile'>
-                            {attendee.profile_picture ? (
-                                <img src={getImageUrl(attendee.profile_picture)} alt={attendee.name} className="profile-image" />
+                            {getImageUrl(attendee.profile_picture) ? (
+                                <img src={getImageUrl(attendee.profile_picture)!} alt={attendee.name} className="profile-image" />
                             ) : (
                                 <div className="photo-placeholder">{/* SVG icon */}</div>
                             )}

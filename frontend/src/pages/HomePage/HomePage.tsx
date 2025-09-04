@@ -30,14 +30,14 @@ interface PageContext {
   role: 'mentor' | 'mentee' | null;
 }
 
-const getImageUrl = (path: string): string | undefined => {
-  if (!path) return undefined;
-  // If the path is already a full URL from Cloudinary, use it directly
+const getImageUrl = (path: string | null): string | null => {
+  if (!path) return null;
+  // If the path is a full URL from Cloudinary, use it directly
   if (path.startsWith('http')) {
     return path;
   }
-  // This is for old images. Use your backend's URL.
-  return `https://nindyamaya-backend.vercel.app/${path}`;
+  // This is for old images. Use your backend's URL and handle backslashes.
+  return `https://nindyamaya-backend.vercel.app/${path.replace(/\\/g, '/')}`;
 };
 
 const HomePage: React.FC = () => {
@@ -269,8 +269,12 @@ const HomePage: React.FC = () => {
                                             <tr key={menteeData.user_id}>
                                                 <td>{index + 1}</td>
                                                 <td>
-                                                    <div className="mentee-photo">
-                                                        <img src={getImageUrl(menteeData.profile_picture)} alt="Mentee Photo" />
+                                                   <div className="mentee-photo">
+                                                        {getImageUrl(menteeData.profile_picture) ? (
+                                                            <img src={getImageUrl(menteeData.profile_picture)!} alt="Mentee Photo" />
+                                                        ) : (
+                                                            <span>No Pic</span> // Or an SVG icon
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td>
