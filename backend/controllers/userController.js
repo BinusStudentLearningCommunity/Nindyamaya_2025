@@ -39,7 +39,7 @@ exports.uploadProfilePhoto = async (req, res) => {
 
     try {
         await pool.query(
-            'UPDATE User SET profile_picture = ? WHERE user_id = ?',
+            'UPDATE user SET profile_picture = ? WHERE user_id = ?',
             [filePath, req.user.userID]
         );
 
@@ -127,7 +127,7 @@ exports.login = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty, profile_picture FROM User WHERE user_id = ?', [req.user.userID]);
+        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty, profile_picture FROM user WHERE user_id = ?', [req.user.userID]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -160,7 +160,7 @@ exports.verifyToken = async (req, res, next) =>{
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty FROM User');
+        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty FROM user');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching all users:', error);
@@ -172,7 +172,7 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty FROM User WHERE user_id = ?', [id]);
+        const [rows] = await pool.query('SELECT user_id, name, email, nim, faculty FROM user WHERE user_id = ?', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -208,7 +208,7 @@ exports.createUser = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const [userResult] = await connection.query(
-            'INSERT INTO User (name, email, nim, faculty, password) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO user (name, email, nim, faculty, password) VALUES (?, ?, ?, ?, ?)',
             [name, email, nim, faculty, hashedPassword]
         );
         const newUserId = userResult.insertId;
