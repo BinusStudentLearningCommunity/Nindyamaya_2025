@@ -19,8 +19,20 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
+const allowedOrigins = [
+  'https://newnindyamaya.bslc.or.id',
+  'https://nindyamaya-2025-frontend.vercel.app'
+];
+
 const corsOptions = {
-  origin: 'https://newnindyamaya.bslc.or.id',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));

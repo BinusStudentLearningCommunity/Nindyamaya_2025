@@ -201,12 +201,6 @@ const completeSession = async (req, res) => {
             return res.status(403).json({ message: 'Forbidden: You are not the mentor for this session.' });
         }
 
-        // Verify the session is in the past before completing
-        const sessionEndDateTime = new Date(`${session.session_date.toISOString().split('T')[0]}T${session.end_time}`);
-        if (new Date() < sessionEndDateTime) {
-            return res.status(400).json({ message: 'Cannot complete a session that has not ended yet.' });
-        }
-
         // Update the session_proof field in the database
         await pool.query(
             'UPDATE mentoringsession SET session_proof = ? WHERE session_id = ?',
