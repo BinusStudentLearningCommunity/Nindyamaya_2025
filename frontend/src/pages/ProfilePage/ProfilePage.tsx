@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import './ProfilePage.css';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const ProfilePage: React.FC = () => {
   const [userData, setUserData] = useState({
@@ -16,29 +18,24 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const response = await fetch('/api/users/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserData(data);
-                    if (data.profile_picture) {
-                        setProfileImage(`https://newnindyamaya.bslc.or.id/${data.profile_picture.replace(/\\/g, '/')}`);
-                    }
-                } else {
-                    console.error('Failed to fetch user profile');
-                }
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
-            }
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get('/api/users/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setUserData(response.data);
+        if (response.data.profile_picture) {
+          // Construct the full URL for the image
+          setProfileImage(`${axios.defaults.baseURL}${response.data.profile_picture}`);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        toast.error('Could not load profile.');
       }
-    };
-    fetchUserProfile();
+    }
+  };
+  fetchUserProfile();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,36 +50,31 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSavePhoto = async () => {
-      if (!selectedFile) return;
+    if (!selectedFile) return;
 
-      const formData = new FormData();
-      formData.append('profilePhoto', selectedFile);
+    const formData = new FormData();
+    formData.append('profilePhoto', selectedFile);
+    const token = localStorage.getItem('token');
 
-      const token = localStorage.getItem('token');
+    try {
+        const response = await axios.put('/api/users/profile/photo', formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        
+        // Update image with the new path from the server
+        setProfileImage(`${axios.defaults.baseURL}${response.data.filePath}`);
+        toast.success('Photo updated successfully!');
+        setSelectedFile(null);
+        setFileName('No file chosen');
 
-      try {
-          const response = await fetch('/api/users/profile/photo', {
-              method: 'PUT',
-              headers: {
-                  'Authorization': `Bearer ${token}`
-              },
-              body: formData
-          });
-
-          if (response.ok) {
-              const data = await response.json();
-              setProfileImage(`https://newnindyamaya.bslc.or.id/${data.filePath.replace(/\\/g, '/')}`);
-              alert('Photo updated successfully!');
-              setSelectedFile(null);
-              setFileName('No file chosen');
-          } else {
-              alert('Failed to upload photo.');
-          }
-      } catch (error) {
-          console.error('Error uploading photo:', error);
-          alert('An error occurred while uploading the photo.');
-      }
-  };
+    } catch (error) {
+        console.error('Error uploading photo:', error);
+        toast.error('Failed to upload photo.');
+    }
+};
 
   return (
     <div className="profile-page">

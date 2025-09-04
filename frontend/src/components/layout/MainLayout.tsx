@@ -4,6 +4,7 @@ import Sidebar from './Sidebar/Sidebar';
 import Navbar from './Navbar/Navbar';
 import { useState, useEffect } from 'react';
 import './MainLayout.css';
+import axios from 'axios';
 
 const MainLayout = () => {
   const [user, setUser] = useState(null);
@@ -20,21 +21,18 @@ const MainLayout = () => {
     }
 
     const fetchRoles = async () => {
-      if (token) {
-        try {
-          const res = await fetch('/api/users/roles', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setViewingRole(data.currentRole);
-            setAllRoles(data.allRoles);      
-          }
-        } catch (error) {
-          console.error("Failed to fetch roles", error);
-        }
+    if (token) {
+      try {
+        const res = await axios.get('/api/users/roles', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setViewingRole(res.data.currentRole);
+        setAllRoles(res.data.allRoles);
+      } catch (error) {
+        console.error("Failed to fetch roles", error);
       }
-    };
+    }
+  };
 
     fetchRoles();
   }, []);

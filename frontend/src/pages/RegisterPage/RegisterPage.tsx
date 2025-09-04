@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./RegisterPage.css";
 import { Link, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -42,21 +43,20 @@ const RegisterPage: React.FC = () => {
       password
     };
 
-    // TODO: replace link
-    const res = await fetch('/api/users/register',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(userData)
-    })
-
-    const data = await res.json()
-    
-    if (res.ok) {
-        toast.success('Registered successfully! Please log in.');
-        navigate("/login");
-    } else {
-      setError(data.message);
-    }
+      try {
+        const response = await axios.post('/api/users/register', userData);
+        
+        if (response.status === 201) {
+            toast.success('Registered successfully! Please log in.');
+            navigate("/login");
+        }
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || 'Registration failed.');
+        } else {
+          setError('An unexpected error occurred.');
+        }
+      }
   };
 
   return (
