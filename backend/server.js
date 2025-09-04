@@ -19,7 +19,12 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'https://newnindyamaya.bslc.or.id',
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
