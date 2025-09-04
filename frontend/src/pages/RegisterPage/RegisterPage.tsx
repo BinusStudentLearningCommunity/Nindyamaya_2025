@@ -12,12 +12,14 @@ const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (!email.endsWith("@binus.ac.id")) {
       setError("Please use a valid BINUS University email (@binus.ac.id).");
@@ -56,7 +58,9 @@ const RegisterPage: React.FC = () => {
         } else {
           setError('An unexpected error occurred.');
         }
-      }
+      }  finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -183,7 +187,7 @@ const RegisterPage: React.FC = () => {
 
             {error && <p className="error-message">{error}</p>}
 
-            <button type="submit">Register</button>
+            <button type="submit" disabled={isLoading}>{isLoading ? 'Registering...' : 'Register'}</button>
             <p>
               Already have an account? <Link to="/login">Login</Link>
             </p>

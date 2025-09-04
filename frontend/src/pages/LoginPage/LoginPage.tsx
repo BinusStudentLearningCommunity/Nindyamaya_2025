@@ -10,10 +10,12 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     const formData = {
       email: email,
@@ -42,6 +44,8 @@ const LoginPage: React.FC = () => {
         : "An error occurred during login.";
       console.log(errorMessage);
       setError(errorMessage);
+    } finally {
+      setIsLoading(false); // Set loading to false after request finishes
     }
   };
 
@@ -88,7 +92,7 @@ const LoginPage: React.FC = () => {
 
             {error && <p className="error-message">{error}</p>}
 
-            <button type="submit">Login</button>
+            <button type="submit" disabled={isLoading}>{isLoading ? 'Logging in...' : 'Login'}</button>
             <Link to="/forgot-password">Forgot Password</Link>
             <p>
              Don't have an account? <Link to="/register">Sign up here</Link>

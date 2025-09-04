@@ -8,33 +8,22 @@ const { v4:uuidv4 } = require('uuid'); // lib for UUID generation
 const multer = require('multer');
 const path = require('path');
 const { promisify } = require('util');
+const { createStorage } = require('../config/cloudinaryConfig');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'key';
 
 // --- Multer Configuration ---
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, req.user.userID + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 1024 * 1024 } // 1 MB limit
-});
+const storage = createStorage('nindyamaya_profile_pictures'); // Specify Cloudinary folder
+const upload = multer({ storage: storage });
 
 exports.upload = upload;
 
 exports.uploadProfilePhoto = async (req, res) => {
-    // The 'upload.single('profilePhoto')' middleware puts the file info in req.file
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
+    // The file path is now a URL from Cloudinary
     const filePath = req.file.path;
 
     try {
@@ -45,7 +34,7 @@ exports.uploadProfilePhoto = async (req, res) => {
 
         res.status(200).json({
             message: 'Profile photo updated successfully.',
-            filePath: filePath
+            filePath: filePath // Send back the full Cloudinary URL
         });
 
     } catch (error) {

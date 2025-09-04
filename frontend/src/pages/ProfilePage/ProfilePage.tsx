@@ -4,6 +4,16 @@ import './ProfilePage.css';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const getImageUrl = (path: string) => {
+  if (!path) return null;
+  // If the path is already a full URL from Cloudinary, use it directly
+  if (path.startsWith('http')) {
+    return path;
+  }
+  // This is for old images. Use your backend's URL.
+  return `https://nindyamaya-backend.vercel.app/${path}`;
+};
+
 const ProfilePage: React.FC = () => {
   const [userData, setUserData] = useState({
       name: '',
@@ -27,7 +37,7 @@ const ProfilePage: React.FC = () => {
         setUserData(response.data);
         if (response.data.profile_picture) {
           // Construct the full URL for the image
-          setProfileImage(`${axios.defaults.baseURL}${response.data.profile_picture}`);
+          setProfileImage(getImageUrl(response.data.profile_picture));
         }
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -65,7 +75,7 @@ const ProfilePage: React.FC = () => {
         });
         
         // Update image with the new path from the server
-        setProfileImage(`${axios.defaults.baseURL}${response.data.filePath}`);
+        setProfileImage(getImageUrl(response.data.filePath));
         toast.success('Photo updated successfully!');
         setSelectedFile(null);
         setFileName('No file chosen');

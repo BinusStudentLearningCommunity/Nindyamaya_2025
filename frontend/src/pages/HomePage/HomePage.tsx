@@ -30,6 +30,16 @@ interface PageContext {
   role: 'mentor' | 'mentee' | null;
 }
 
+const getImageUrl = (path: string): string | undefined => {
+  if (!path) return undefined;
+  // If the path is already a full URL from Cloudinary, use it directly
+  if (path.startsWith('http')) {
+    return path;
+  }
+  // This is for old images. Use your backend's URL.
+  return `https://nindyamaya-backend.vercel.app/${path}`;
+};
+
 const HomePage: React.FC = () => {
   const { role: userRole } = useOutletContext<PageContext>();
   const navigate = useNavigate();
@@ -260,7 +270,7 @@ const HomePage: React.FC = () => {
                                                 <td>{index + 1}</td>
                                                 <td>
                                                     <div className="mentee-photo">
-                                                        <img src={`https://newnindyamaya.bslc.or.id/${menteeData.profile_picture}`} alt="Mentee Photo" />
+                                                        <img src={getImageUrl(menteeData.profile_picture)} alt="Mentee Photo" />
                                                     </div>
                                                 </td>
                                                 <td>

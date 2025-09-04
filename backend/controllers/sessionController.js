@@ -1,32 +1,14 @@
 const pool = require('../config/db'); // Assuming you have a db config file
 const multer = require('multer');
 const path = require('path');
+const { createStorage } = require('../config/cloudinaryConfig');
 
 // --- Multer Configuration for Session Proofs ---
-const sessionProofStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/session_proofs/'); // A dedicated folder for session proofs
-  },
-  filename: function (req, file, cb) {
-    const sessionId = req.params.sessionId;
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `session-${sessionId}-proof-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
-
-const imageFileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Not an image! Please upload an image file (e.g., .png, .jpg).'), false);
-  }
-};
-
+const sessionProofStorage = createStorage('nindyamaya_session_proofs'); // Specify Cloudinary folder
 const uploadProof = multer({
   storage: sessionProofStorage,
-  fileFilter: imageFileFilter,
   limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
-}).single('sessionProof'); // The field name from the form-data
+}).single('sessionProof');
 
 // @desc    Create a new mentoring session
 // @route   POST /api/sessions
@@ -201,7 +183,7 @@ const completeSession = async (req, res) => {
 
     const { sessionId } = req.params;
     const mentorId = req.user.userID;
-    const filePath = req.file.path.replace(/\\/g, "/"); // Standardize path
+    const filePath = req.file.path;
 
     try {
         // Verify user is the mentor and session exists
