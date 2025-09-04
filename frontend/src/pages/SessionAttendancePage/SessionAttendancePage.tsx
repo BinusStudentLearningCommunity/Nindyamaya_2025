@@ -183,13 +183,15 @@ const SessionAttendancePage: React.FC = () => {
     const formatTime = (timeString: string) => timeString.substring(0, 5);
 
     const formatCheckInTime = (timeString: string) => {
-        return new Date(timeString).toLocaleString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        // The time from the DB is correct, so we just need to reformat it without timezone conversion.
+        // Example input: "2025-09-04T16:48:00.000Z"
+        const year = timeString.substring(0, 4);
+        const month = timeString.substring(5, 7);
+        const day = timeString.substring(8, 10);
+        const time = timeString.substring(11, 16);
+
+        // Manually construct the string to avoid timezone issues.
+        return `${day}/${month}/${year} ${time}`;
     };
 
     const mentorProfileImage = session.mentor.profile_picture ? getImageUrl(session.mentor.profile_picture) : undefined;

@@ -97,8 +97,8 @@ const confirmMenteeAttendance = async (req, res) => {
         await connection.beginTransaction();
 
         const [sessionRows] = await connection.query(
-        `SELECT session_id, session_proof FROM mentoringsession
-            WHERE session_id = ? AND CONVERT_TZ(NOW(), 'UTC', 'Asia/Jakarta') <= DATE_ADD(TIMESTAMP(session_date, end_time), INTERVAL 3 DAY)`,
+           `SELECT session_id, session_proof FROM mentoringsession
+            WHERE session_id = ? AND NOW() <= DATE_ADD(TIMESTAMP(session_date, end_time), INTERVAL 3 DAY)`,
             [sessionId]
         );
 
@@ -124,7 +124,7 @@ const confirmMenteeAttendance = async (req, res) => {
         }
         
         await connection.query(
-            'INSERT INTO mentoringsessionattendance (session_id, mentee_user_id, check_in_time) VALUES (?, ?, CONVERT_TZ(NOW(), "UTC", "Asia/Jakarta"))',
+            'INSERT INTO mentoringsessionattendance (session_id, mentee_user_id, check_in_time) VALUES (?, ?, NOW())',
             [sessionId, userID]
         );
 
