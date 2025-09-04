@@ -43,7 +43,13 @@ const getImageUrl = (path: string | null): string | null => {
   return `https://nindyamaya-backend.vercel.app/${path.replace(/\\/g, '/')}`;
 };
 
+const getLoggedInUser = () => {
+  const storedUser = localStorage.getItem('user');
+  return storedUser ? JSON.parse(storedUser) : null;
+};
+
 const SessionAttendancePage: React.FC = () => {
+    const currentUser = getLoggedInUser();
     const { session_id } = useParams<{ session_id: string }>();
     const { role } = useOutletContext<PageContext>();
     const navigate = useNavigate();
@@ -162,6 +168,12 @@ const SessionAttendancePage: React.FC = () => {
         }
     };
 
+    const hasUserConfirmed = session?.attendees
+        ? session.attendees.some(
+            attendee => attendee.user_id === currentUser?.id && attendee.check_in_time !== null
+        )
+        : false;
+
     if (loading) return <div className="session-attendance-page"><p>Loading session...</p></div>;
     if (error) return <div className="session-attendance-page"><p>{error}</p></div>;
     if (!session) return <div className="session-attendance-page"><p>Session not found.</p></div>;
@@ -220,7 +232,7 @@ const SessionAttendancePage: React.FC = () => {
                         </div>
                     )}
 
-                    {role === 'mentee' && (
+                    {role === 'mentee' && !hasUserConfirmed && ( // Note the !hasUserConfirmed check
                         <div className='confirmation-card'>
                             <p className='confirmation-text'>Mark your attendance to <span className='highlight-green'>confirm your participation</span> in this mentoring session.</p>
                             <div className='confirmation-button'>

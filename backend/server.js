@@ -19,6 +19,8 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
+app.options('*', cors(corsOptions));
+
 const allowedOrigins = [
   'https://newnindyamaya.bslc.or.id',
   'https://nindyamaya-2025-frontend.vercel.app'
