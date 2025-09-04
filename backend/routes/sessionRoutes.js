@@ -19,7 +19,7 @@ router.delete('/:sessionId', protect, sessionController.deleteSession);
 router.post(
   '/:sessionId/complete', 
   protect, 
-  sessionController.uploadProof, // Multer middleware runs first
+  sessionController.uploadProof.single('sessionProof'), // Multer middleware runs first
   sessionController.completeSession // Then our new controller function
 );
 

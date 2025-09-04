@@ -7,8 +7,8 @@ const { createStorage } = require('../config/cloudinaryConfig');
 const sessionProofStorage = createStorage('nindyamaya_session_proofs'); // Specify Cloudinary folder
 const uploadProof = multer({
   storage: sessionProofStorage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
-}).single('sessionProof');
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
 // @desc    Create a new mentoring session
 // @route   POST /api/sessions
