@@ -7,35 +7,51 @@ import './MainLayout.css';
 import axios from 'axios';
 
 const MainLayout = () => {
-  const [user, setUser] = useState(null);
-  const [viewingRole, setViewingRole] = useState<'mentor' | 'mentee'>('mentee');
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+
+  const [viewingRole, setViewingRole] = useState<'mentor' | 'mentee'>(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      return parsedUser.role || 'mentee';
+    }
+    return 'mentee';
+  });
+
   const [allRoles, setAllRoles] = useState<string[]>([]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    
+    if (!user) {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
     }
 
     const fetchRoles = async () => {
-    if (token) {
-      try {
-        const res = await axios.get('/api/users/roles', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setViewingRole(res.data.currentRole);
-        setAllRoles(res.data.allRoles);
-      } catch (error) {
-        console.error("Failed to fetch roles", error);
+      if (token) {
+        try {
+          const res = await axios.get('/api/users/roles', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          setViewingRole(res.data.currentRole);
+          setAllRoles(res.data.allRoles);      
+        } catch (error) {
+          console.error("Failed to fetch roles", error);
+        }
       }
-    }
-  };
+    };
 
     fetchRoles();
-  }, []);
+  }, [user]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
