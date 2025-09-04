@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import toast from "react-hot-toast";
+import axios from 'axios';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -15,28 +16,32 @@ const LoginPage: React.FC = () => {
     setError("");
 
     const formData = {
-      email:email,
-      password:password,
-      rememberMe:rememberMe
-    }
-    // TODO: replace link
-    const res = await fetch('/api/users/login',{
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body:JSON.stringify(formData)
-    })
+      email: email,
+      password: password,
+      rememberMe: rememberMe
+    };
 
-    const data = await res.json()
-    console.log(data);
-    if(res.ok){
+    try {
+      // 2. Replace fetch with axios
+      const response = await axios.post('/api/users/login', formData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const data = response.data;
+      console.log(data);
+      
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate("/");
       toast.success('Logged in successfully!');
-    }
-    else{
-      console.log(data.message);
-      setError(data.message);
+      
+    } catch (err) {
+      // 3. Axios provides better error handling
+      const errorMessage = (axios.isAxiosError(err) && err.response?.data?.message)
+        ? err.response.data.message
+        : "An error occurred during login.";
+      console.log(errorMessage);
+      setError(errorMessage);
     }
   };
 
