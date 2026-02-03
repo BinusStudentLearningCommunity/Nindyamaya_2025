@@ -3,7 +3,7 @@ const router = express.Router();
 const sessionController = require('../controllers/sessionController');
 const { protect } = require('../middleware/authMiddleware');
 
-// GET all sessions
+// GET all sessions (Note: For export, use /api/sessions-export/export)
 router.get('/', protect, sessionController.getMentoringSessions);
 
 // POST a new session

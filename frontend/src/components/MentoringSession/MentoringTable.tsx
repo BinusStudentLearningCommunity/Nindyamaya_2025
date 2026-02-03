@@ -18,6 +18,13 @@ interface Session {
   session_proof: string | null;
   mentor_user_id?: number;
   semester_id?: number;
+  title?: string;
+  location?: string;
+  status?: string;
+  created_at?: string;
+  mentor_name?: string;
+  attendance_count?: number;
+  attendees?: any[];
 }
 
 interface User {
@@ -32,11 +39,17 @@ interface AttendanceRecord {
   session_id: number;
   mentee_user_id: number;
   check_in_time: string;
+  mentee_name?: string;
+  nim?: string;
+  email?: string;
 }
 
 interface MentoringTableProps {
   role: 'mentor' | 'mentee';
 }
+
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'https://nindyamaya-backend.vercel.app/api';
 
 const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -52,6 +65,7 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
   const filteredSessions = sessions
     .filter((session) =>
       session.course_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (session.title && session.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
       session.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
       new Date(session.date).toLocaleDateString().toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -80,115 +94,360 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
     return user ? `${user.name} (${user.nim})` : `Mentee ID: ${userId}`;
   };
 
-  const handleExportToExcel = () => {
+  // ================== UPDATED EXPORT FUNCTIONS ==================
+
+  const handleExportToExcel = async () => {
     if (sessions.length === 0) {
       toast.error('No sessions to export.');
       return;
     }
 
     setIsExporting(true);
+    console.log('Starting export process...');
+
     try {
-      // Format data for Excel by joining sessions, attendance, and users
-      const excelData = sessions.map(session => {
-        // Get all attendance records for this session
-        const sessionAttendance = getAttendanceForSession(session.session_id);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in again.');
+        setIsExporting(false);
+        return;
+      }
+
+      // Try the dedicated export endpoint first
+      try {
+        console.log('Trying dedicated export endpoint...');
+        const exportResponse = await axios.get(`${API_BASE_URL}/sessions-export/export`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000
+        });
         
-        // Get attendee names
-        const attendees = sessionAttendance
-          .map(att => getUserNameById(att.mentee_user_id))
-          .join(', ');
-          
-        const attendeeCount = sessionAttendance.length;
-
-        return {
-          'Session ID': session.session_id,
-          'Course Name': session.course_name,
-          'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          'Start Time': session.start_time.substring(0, 5),
-          'End Time': session.end_time.substring(0, 5),
-          'Platform': session.platform,
-          'Session Proof': session.session_proof || 'No proof uploaded',
-          'Attendee Count': attendeeCount,
-          'Attendees': attendees || 'No attendees'
-        };
-      });
-
-      console.log('Excel data prepared:', excelData);
-
-      // Create workbook and worksheet
-      const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-      // Set column widths
-      const colWidths = [
-        { wch: 10 }, // Session ID
-        { wch: 30 }, // Course Name
-        { wch: 15 }, // Date
-        { wch: 12 }, // Start Time
-        { wch: 12 }, // End Time
-        { wch: 20 }, // Platform
-        { wch: 40 }, // Session Proof
-        { wch: 15 }, // Attendee Count
-        { wch: 50 }, // Attendees
-      ];
-      worksheet['!cols'] = colWidths;
-
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Mentoring Sessions');
-
-      // Generate file name with current date
-      const dateStr = new Date().toISOString().split('T')[0];
-      const fileName = `mentoring-sessions-${dateStr}.xlsx`;
-
-      // Save the file
-      XLSX.writeFile(workbook, fileName);
-
-      toast.success(`Sessions exported successfully! (${sessions.length} sessions)`);
+        if (exportResponse.data.success && exportResponse.data.sessions) {
+          console.log('Export endpoint successful! Processing data...', exportResponse.data.sessions.length, 'sessions');
+          processExportData(exportResponse.data.sessions);
+          return;
+        }
+      } catch (exportError: any) {
+        console.log('Export endpoint failed, trying alternative methods:', exportError.message);
+        
+        // Try the fallback method
+        await fetchAllDataForExportFallback();
+      }
       
-    } catch (err) {
-      console.error('Failed to export sessions:', err);
-      toast.error('Failed to export sessions. Please try again.');
-    } finally {
+    } catch (error: any) {
+      console.error('Error in export process:', error);
       setIsExporting(false);
+      toast.error(`Failed to export data: ${error.message || 'Unknown error'}`);
     }
   };
 
-  const handleExportFilteredToExcel = () => {
+  const fetchAllDataForExportFallback = async () => {
+    try {
+      console.log('Using fallback export method...');
+      const token = localStorage.getItem('token');
+      
+      // 1. Fetch all sessions
+      const sessionsResponse = await axios.get(`${API_BASE_URL}/sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      const sessionsData = sessionsResponse.data.sessions || sessionsResponse.data || [];
+      console.log('Sessions fetched:', sessionsData.length);
+      
+      if (sessionsData.length === 0) {
+        toast.error('No sessions found to export.');
+        setIsExporting(false);
+        return;
+      }
+      
+      // Get all session IDs
+      const sessionIds = sessionsData.map((session: any) => session.session_id || session.id).filter((id: any) => id);
+      console.log('Session IDs to fetch attendance for:', sessionIds);
+      
+      // 2. Try bulk attendance endpoint first
+      if (sessionIds.length > 0) {
+        try {
+          console.log('Trying bulk attendance endpoint...');
+          const bulkResponse = await axios.get(`${API_BASE_URL}/sessions-export/bulk-attendance`, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { sessionIds: sessionIds.join(',') }
+          });
+          
+          if (bulkResponse.data.success && bulkResponse.data.sessions) {
+            console.log('Bulk attendance successful!');
+            
+            // Combine session data with attendance
+            const sessionsWithAttendance = sessionsData.map((session: any) => {
+              const attendanceData = bulkResponse.data.sessions.find(
+                (s: any) => s.session_id === (session.session_id || session.id)
+              );
+              
+              return {
+                ...session,
+                attendance_count: attendanceData?.attendance_count || 0,
+                attendees: attendanceData?.attendance || []
+              };
+            });
+            
+            processExportData(sessionsWithAttendance);
+            return;
+          }
+        } catch (bulkError) {
+          console.log('Bulk attendance failed, fetching individually...');
+        }
+      }
+      
+      // 3. Fallback: Fetch attendance for each session individually
+      const sessionsWithAttendance = await Promise.all(
+        sessionsData.map(async (session: any) => {
+          const sessionId = session.session_id || session.id;
+          
+          // Try multiple endpoints
+          const endpoints = [
+            `${API_BASE_URL}/sessions-export/session/${sessionId}/attendance`,
+            `${API_BASE_URL}/attendance/session/${sessionId}`,
+            `${API_BASE_URL}/attendance/${sessionId}/details`
+          ];
+          
+          for (const endpoint of endpoints) {
+            try {
+              const attendanceResponse = await axios.get(endpoint, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 5000
+              });
+              
+              const attendanceData = attendanceResponse.data.attendance || 
+                                    attendanceResponse.data.attendees || 
+                                    attendanceResponse.data || 
+                                    [];
+              
+              console.log(`Found ${attendanceData.length} attendees for session ${sessionId} via ${endpoint}`);
+              
+              return {
+                ...session,
+                attendance_count: Array.isArray(attendanceData) ? attendanceData.length : 0,
+                attendees: Array.isArray(attendanceData) ? attendanceData : []
+              };
+              
+            } catch (error) {
+              // Continue to next endpoint
+              continue;
+            }
+          }
+          
+          // If all endpoints fail
+          console.log(`No attendance data found for session ${sessionId}`);
+          return {
+            ...session,
+            attendance_count: 0,
+            attendees: []
+          };
+        })
+      );
+      
+      console.log('Final sessions with attendance:', sessionsWithAttendance.length);
+      processExportData(sessionsWithAttendance);
+      
+    } catch (error: any) {
+      console.error('Error in fallback export:', error);
+      setIsExporting(false);
+      toast.error(`Fallback export failed: ${error.message || 'Unknown error'}`);
+    }
+  };
+
+  const processExportData = (sessionsData: any[]) => {
+    try {
+      console.log('Processing export data for', sessionsData.length, 'sessions');
+      
+      // Prepare data for Excel
+      const exportData = sessionsData.map((session: any, index: number) => {
+        // Format date
+        const sessionDate = session.date_time || session.date;
+        const formattedDate = sessionDate ? 
+          new Date(sessionDate).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'N/A';
+        
+        // Format attendees
+        let attendeesList = 'No attendees';
+        let attendeeCount = 0;
+        
+        if (session.attendees && session.attendees.length > 0) {
+          attendeeCount = session.attendees.length;
+          attendeesList = session.attendees.map((attendee: any) => 
+            `${attendee.mentee_name || attendee.name || 'Unknown'} (${attendee.nim || 'No NIM'})`
+          ).join(', ');
+        } else if (session.attendance_count > 0) {
+          attendeeCount = session.attendance_count;
+          attendeesList = `${session.attendance_count} attendees (details not available)`;
+        }
+        
+        return {
+          'No': index + 1,
+          'Session ID': session.session_id || session.id || 'N/A',
+          'Title': session.title || session.course_name || 'No Title',
+          'Description': session.description || 'No Description',
+          'Date & Time': formattedDate,
+          'Location': session.location || session.platform || 'No Location',
+          'Status': session.status || 'Unknown',
+          'Mentor': session.mentor_name || 'Unknown Mentor',
+          'Total Attendees': attendeeCount,
+          'Attendee List': attendeesList,
+          'Created At': session.created_at ? 
+            new Date(session.created_at).toLocaleDateString('id-ID') : 'N/A'
+        };
+      });
+      
+      // Create worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      
+      // Set column widths
+      const wscols = [
+        { wch: 5 },   // No
+        { wch: 10 },  // Session ID
+        { wch: 30 },  // Title
+        { wch: 40 },  // Description
+        { wch: 30 },  // Date & Time
+        { wch: 20 },  // Location
+        { wch: 15 },  // Status
+        { wch: 25 },  // Mentor
+        { wch: 15 },  // Total Attendees
+        { wch: 50 },  // Attendee List
+        { wch: 15 },  // Created At
+      ];
+      ws['!cols'] = wscols;
+      
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Mentoring Sessions');
+      
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `mentoring_sessions_export_${timestamp}.xlsx`;
+      
+      // Save file
+      XLSX.writeFile(wb, filename);
+      
+      console.log('Export completed successfully!');
+      setIsExporting(false);
+      toast.success(`Exported ${sessionsData.length} sessions successfully!`);
+      
+    } catch (error: any) {
+      console.error('Error processing export data:', error);
+      setIsExporting(false);
+      toast.error(`Error processing data: ${error.message}`);
+    }
+  };
+
+  const handleExportFilteredToExcel = async () => {
     if (filteredSessions.length === 0) {
       toast.error('No filtered sessions to export.');
       return;
     }
 
     setIsExporting(true);
+    
     try {
-      // Format filtered data for Excel
-      const excelData = filteredSessions.map((session, index) => {
-        // Get all attendance records for this session
-        const sessionAttendance = getAttendanceForSession(session.session_id);
-        
-        // Get attendee names
-        const attendees = sessionAttendance
-          .map(att => getUserNameById(att.mentee_user_id))
-          .join(', ');
+      // Use the filtered sessions we already have
+      const sessionsToExport = filteredSessions;
+      
+      // Get detailed attendance for each filtered session
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please log in again.');
+        setIsExporting(false);
+        return;
+      }
+      
+      const sessionsWithAttendance = await Promise.all(
+        sessionsToExport.map(async (session) => {
+          const sessionId = session.session_id;
           
-        const attendeeCount = sessionAttendance.length;
-
+          // Try to get attendance for this session
+          try {
+            // Try multiple endpoints
+            const endpoints = [
+              `${API_BASE_URL}/sessions-export/session/${sessionId}/attendance`,
+              `${API_BASE_URL}/attendance/session/${sessionId}`,
+            ];
+            
+            for (const endpoint of endpoints) {
+              try {
+                const attendanceResponse = await axios.get(endpoint, {
+                  headers: { Authorization: `Bearer ${token}` },
+                  timeout: 5000
+                });
+                
+                const attendanceData = attendanceResponse.data.attendance || 
+                                      attendanceResponse.data.attendees || 
+                                      [];
+                
+                return {
+                  ...session,
+                  attendees: Array.isArray(attendanceData) ? attendanceData : [],
+                  attendance_count: Array.isArray(attendanceData) ? attendanceData.length : 0
+                };
+                
+              } catch (error) {
+                // Continue to next endpoint
+                continue;
+              }
+            }
+          } catch (error) {
+            console.log(`No attendance data found for session ${sessionId}`);
+          }
+          
+          return {
+            ...session,
+            attendees: [],
+            attendance_count: 0
+          };
+        })
+      );
+      
+      // Process the filtered data for export
+      const exportData = sessionsWithAttendance.map((session: any, index: number) => {
+        // Format date
+        const sessionDate = new Date(session.date).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        
+        // Format time
+        const timeRange = `${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`;
+        
+        // Format attendees
+        let attendeesList = 'No attendees';
+        if (session.attendees && session.attendees.length > 0) {
+          attendeesList = session.attendees.map((attendee: any) => 
+            `${attendee.mentee_name || attendee.name || 'Unknown'} (${attendee.nim || 'No NIM'})`
+          ).join(', ');
+        }
+        
         return {
           'No': index + 1,
-          'Course Name': session.course_name,
-          'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          'Time': `${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`,
-          'Platform': session.platform,
-          'Session Proof': session.session_proof || 'No proof uploaded',
-          'Attendee Count': attendeeCount,
-          'Attendees': attendees || 'No attendees'
+          'Course Name': session.course_name || session.title || 'No Title',
+          'Date': sessionDate,
+          'Time': timeRange,
+          'Platform': session.platform || session.location || 'No Location',
+          'Session Proof': session.session_proof ? 'Uploaded' : 'No proof uploaded',
+          'Attendee Count': session.attendance_count || 0,
+          'Attendees': attendeesList
         };
       });
-
+      
       // Create workbook and worksheet
       const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      
       // Set column widths
       const colWidths = [
         { wch: 5 },   // No
@@ -196,28 +455,62 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
         { wch: 15 },  // Date
         { wch: 20 },  // Time
         { wch: 20 },  // Platform
-        { wch: 40 },  // Session Proof
+        { wch: 15 },  // Session Proof
         { wch: 15 },  // Attendee Count
         { wch: 50 },  // Attendees
       ];
       worksheet['!cols'] = colWidths;
-
+      
       // Add worksheet to workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Sessions');
-
+      
       // Generate file name
       const dateStr = new Date().toISOString().split('T')[0];
       const fileName = `mentoring-sessions-filtered-${dateStr}.xlsx`;
-
+      
       // Save the file
       XLSX.writeFile(workbook, fileName);
-
+      
       toast.success(`Filtered sessions exported successfully! (${filteredSessions.length} sessions)`);
+      
     } catch (err) {
       console.error('Failed to export filtered sessions:', err);
-      toast.error('Failed to export sessions. Please try again.');
+      toast.error('Failed to export filtered sessions. Please try again.');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  // ================== UPDATED DATA FETCHING ==================
+
+  // Test the endpoints (optional - for debugging)
+  const testExportEndpoints = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      console.log('Testing export endpoints...');
+      
+      const endpoints = [
+        `${API_BASE_URL}/sessions-export/export`,
+        `${API_BASE_URL}/sessions-export/bulk-attendance`,
+        `${API_BASE_URL}/attendance/all/records`,
+        `${API_BASE_URL}/health`,
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          const response = await axios.get(endpoint, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 5000
+          });
+          console.log(`✅ ${endpoint}: ${response.status}`, response.data?.message || 'OK');
+        } catch (error: any) {
+          console.log(`❌ ${endpoint}: ${error.response?.status || 'Network error'} - ${error.message}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error testing endpoints:', error);
     }
   };
 
@@ -234,129 +527,151 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
 
         console.log('Fetching all data...');
         
-        // Fetch sessions
+        // Fetch sessions - try both endpoints
         console.log('Fetching sessions...');
-        const sessionsResponse = await axios.get('/api/sessions', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const sessionsData = sessionsResponse.data;
-        console.log('Sessions fetched:', sessionsData.length);
+        let sessionsData: Session[] = [];
+        
+        try {
+          // First try the main sessions endpoint
+          const sessionsResponse = await axios.get(`${API_BASE_URL}/sessions`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          sessionsData = Array.isArray(sessionsResponse.data) ? 
+            sessionsResponse.data : 
+            sessionsResponse.data.sessions || [];
+          console.log('Sessions fetched:', sessionsData.length);
+        } catch (sessionsErr) {
+          console.log('Main sessions endpoint failed, trying export endpoint...');
+          try {
+            const exportResponse = await axios.get(`${API_BASE_URL}/sessions-export/export`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (exportResponse.data.success) {
+              sessionsData = exportResponse.data.sessions || [];
+              console.log('Sessions fetched from export endpoint:', sessionsData.length);
+            }
+          } catch (exportErr) {
+            console.log('Both endpoints failed for sessions');
+          }
+        }
+        
+        if (sessionsData.length === 0) {
+          console.log('No sessions found');
+          setSessions([]);
+          setLoading(false);
+          return;
+        }
         
         // Get all session IDs
         const sessionIds = sessionsData.map((s: Session) => s.session_id);
         console.log('Session IDs:', sessionIds);
         
-        // Fetch all attendance records
-        console.log('Fetching all attendance records...');
+        // Fetch attendance data
+        console.log('Fetching attendance data...');
         let allAttendanceData: AttendanceRecord[] = [];
         
-        // Try to fetch all attendance in one go if you have an endpoint for it
-        try {
-          // If you have an endpoint to get all attendance
-          const attendanceResponse = await axios.get('/api/attendance/all', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          allAttendanceData = attendanceResponse.data;
-          console.log('All attendance fetched:', allAttendanceData.length);
-        } catch (attendanceErr) {
-          console.log('No bulk attendance endpoint, fetching individually...');
-          
-          // Fetch attendance for each session individually
+        // Try bulk attendance endpoint first
+        if (sessionIds.length > 0) {
+          try {
+            const bulkResponse = await axios.get(`${API_BASE_URL}/sessions-export/bulk-attendance`, {
+              headers: { Authorization: `Bearer ${token}` },
+              params: { sessionIds: sessionIds.join(',') }
+            });
+            
+            if (bulkResponse.data.success && bulkResponse.data.sessions) {
+              // Flatten the attendance data
+              bulkResponse.data.sessions.forEach((session: any) => {
+                if (session.attendance && Array.isArray(session.attendance)) {
+                  session.attendance.forEach((att: any) => {
+                    allAttendanceData.push({
+                      session_id: session.session_id,
+                      mentee_user_id: att.mentee_user_id,
+                      check_in_time: att.check_in_time,
+                      mentee_name: att.mentee_name,
+                      nim: att.nim,
+                      email: att.email
+                    });
+                  });
+                }
+              });
+              console.log('Attendance fetched via bulk endpoint:', allAttendanceData.length);
+            }
+          } catch (bulkErr) {
+            console.log('Bulk attendance failed, trying individual sessions...');
+          }
+        }
+        
+        // If bulk failed or didn't get all data, try individual endpoints
+        if (allAttendanceData.length === 0) {
           const attendancePromises = sessionIds.map(async (sessionId: number) => {
             try {
-              // Try different endpoints
-              let attendanceEndpoint = `/api/sessions/${sessionId}/attendance`;
+              // Try the export attendance endpoint first
+              const response = await axios.get(`${API_BASE_URL}/sessions-export/session/${sessionId}/attendance`, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 3000
+              });
               
-              // Try the attendance endpoint first
+              if (response.data.success && response.data.attendance) {
+                return response.data.attendance.map((att: any) => ({
+                  ...att,
+                  session_id: sessionId
+                }));
+              }
+            } catch (err1) {
               try {
-                const response = await axios.get(attendanceEndpoint, {
+                // Try the regular attendance endpoint
+                const response2 = await axios.get(`${API_BASE_URL}/attendance/session/${sessionId}`, {
                   headers: { Authorization: `Bearer ${token}` },
+                  timeout: 3000
                 });
                 
-                // Handle different response structures
-                let attendanceRecords: any[] = [];
-                if (response.data.attendance && Array.isArray(response.data.attendance)) {
-                  attendanceRecords = response.data.attendance;
-                } else if (Array.isArray(response.data)) {
-                  attendanceRecords = response.data;
-                } else if (response.data.data && Array.isArray(response.data.data)) {
-                  attendanceRecords = response.data.data;
-                }
-                
-                // Add session_id to each record if not present
-                return attendanceRecords.map((record: any) => ({
-                  ...record,
-                  session_id: record.session_id || sessionId
-                }));
-              } catch (err) {
-                // Try alternative endpoint
-                try {
-                  const altResponse = await axios.get(`/api/attendance/session/${sessionId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-                  
-                  let attendanceRecords: any[] = [];
-                  if (altResponse.data.attendance && Array.isArray(altResponse.data.attendance)) {
-                    attendanceRecords = altResponse.data.attendance;
-                  } else if (Array.isArray(altResponse.data)) {
-                    attendanceRecords = altResponse.data;
-                  }
-                  
-                  return attendanceRecords.map((record: any) => ({
-                    ...record,
-                    session_id: record.session_id || sessionId
+                if (response2.data.success && response2.data.attendance) {
+                  return response2.data.attendance.map((att: any) => ({
+                    ...att,
+                    session_id: sessionId
                   }));
-                } catch (altErr) {
-                  console.log(`No attendance data found for session ${sessionId}`);
-                  return [];
                 }
+              } catch (err2) {
+                // No attendance for this session
+                return [];
               }
-            } catch (err) {
-              console.error(`Error fetching attendance for session ${sessionId}:`, err);
-              return [];
             }
+            return [];
           });
           
           const attendanceResults = await Promise.all(attendancePromises);
           allAttendanceData = attendanceResults.flat();
-          console.log('Attendance data collected:', allAttendanceData.length, 'records');
+          console.log('Attendance fetched individually:', allAttendanceData.length);
         }
         
-        // Fetch all users (or at least mentees)
+        // Fetch users (optional - for display purposes)
         console.log('Fetching users...');
         let usersData: User[] = [];
         try {
-          // Try to get all users
-          const usersResponse = await axios.get('/api/users', {
+          // Try to get all users (or just mentees)
+          const usersResponse = await axios.get(`${API_BASE_URL}/users`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          usersData = usersResponse.data;
+          usersData = Array.isArray(usersResponse.data) ? 
+            usersResponse.data : 
+            usersResponse.data.users || [];
           console.log('Users fetched:', usersData.length);
         } catch (usersErr) {
-          console.log('Cannot fetch all users, will try to get mentee users from attendance...');
-          
-          // Get unique mentee IDs from attendance
-          const menteeIds = [...new Set(allAttendanceData.map(att => att.mentee_user_id))];
-          console.log('Unique mentee IDs from attendance:', menteeIds);
-          
-          if (menteeIds.length > 0) {
-            // Try to fetch these specific users
-            const userPromises = menteeIds.map(async (userId: number) => {
-              try {
-                const userResponse = await axios.get(`/api/users/${userId}`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                return userResponse.data;
-              } catch (err) {
-                console.log(`Cannot fetch user ${userId}`);
-                return null;
-              }
-            });
-            
-            const userResults = await Promise.all(userPromises);
-            usersData = userResults.filter(Boolean) as User[];
-            console.log('Mentee users fetched:', usersData.length);
-          }
+          console.log('Cannot fetch all users, will extract from attendance...');
+          // Extract user info from attendance data if available
+          const uniqueUsers = new Map();
+          allAttendanceData.forEach(att => {
+            if (att.mentee_name && att.nim) {
+              uniqueUsers.set(att.mentee_user_id, {
+                user_id: att.mentee_user_id,
+                name: att.mentee_name,
+                nim: att.nim,
+                email: att.email || '',
+                faculty: ''
+              });
+            }
+          });
+          usersData = Array.from(uniqueUsers.values());
         }
         
         // Set all data
@@ -370,20 +685,29 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
         console.log('- Attendance records:', allAttendanceData.length);
         console.log('- Users:', usersData.length);
         
-        // Show warning if no attendance data
+        // For debugging - show which sessions have attendance
         if (allAttendanceData.length === 0) {
-          console.warn('No attendance data found. The export will show "No attendees" for all sessions.');
+          console.warn('No attendance data found.');
+        } else {
+          const sessionAttendanceCounts: Record<number, number> = {};
+          allAttendanceData.forEach(att => {
+            sessionAttendanceCounts[att.session_id] = (sessionAttendanceCounts[att.session_id] || 0) + 1;
+          });
+          console.log('Attendance by session:', sessionAttendanceCounts);
         }
         
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to fetch mentoring data:', err);
-        setError('Failed to fetch mentoring sessions.');
+        setError(`Failed to fetch mentoring sessions: ${err.message || 'Unknown error'}`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchAllData();
+    
+    // Uncomment for debugging endpoint availability
+    // testExportEndpoints();
   }, []);
 
   if (loading) return <p style={{ textAlign: 'center', padding: '2rem' }}>Loading sessions...</p>;
@@ -427,9 +751,9 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
               disabled={isExporting || sessions.length === 0}
               className="export-button"
             >
-              {isExporting ? 'Exporting...' : 'Export to Excel'}
+              {isExporting ? 'Exporting...' : 'Export All to Excel'}
             </button>
-            {filteredSessions.length < sessions.length && (
+            {filteredSessions.length < sessions.length && filteredSessions.length > 0 && (
               <button
                 onClick={handleExportFilteredToExcel}
                 disabled={isExporting || filteredSessions.length === 0}
@@ -455,23 +779,24 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
         </thead>
         <tbody>
           {filteredSessions.map((session, index) => {
-            // Get attendance count for display (optional)
+            // Get attendance count for display
             const attendanceCount = getAttendanceForSession(session.session_id).length;
+            const displayCount = attendanceCount || session.attendance_count || 0;
             
             return (
               <tr key={session.session_id}>
                 <td className="col-no">{index + 1}</td>
                 <td className="col-course">
-                  {session.course_name}
-                  {attendanceCount > 0 && (
+                  {session.course_name || session.title}
+                  {displayCount > 0 && (
                     <span style={{ fontSize: '0.8em', color: '#666', marginLeft: '8px' }}>
-                      ({attendanceCount} attendees)
+                      ({displayCount} attendee{displayCount !== 1 ? 's' : ''})
                     </span>
                   )}
                 </td>
                 <td className="col-date">{new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
                 <td className="col-time">{`${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`}</td>
-                <td className="col-platform">{session.platform}</td>
+                <td className="col-platform">{session.platform || session.location}</td>
                 <td className="col-action">
                   <button className="view-button" onClick={() => handleViewDetails(session)}>View Details</button>
                 </td>
@@ -481,6 +806,17 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
         </tbody>
       </table>
 
+      {filteredSessions.length === 0 && searchTerm && (
+        <p style={{ textAlign: 'center', padding: '1rem', color: '#666' }}>
+          No sessions found matching "{searchTerm}"
+        </p>
+      )}
+      
+      {filteredSessions.length === 0 && !searchTerm && (
+        <p style={{ textAlign: 'center', padding: '1rem', color: '#666' }}>
+          No mentoring sessions found
+        </p>
+      )}
     </div>
   )
 }

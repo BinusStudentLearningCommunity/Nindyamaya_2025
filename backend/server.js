@@ -9,14 +9,13 @@ const semesterRoutes = require('./routes/semesters');
 const userRoleRoutes = require('./routes/userRoles');
 const pairingRoutes = require('./routes/pairings');
 const sessionRoutes = require('./routes/sessionRoutes');
+const sessionExportRoutes = require('./routes/sessionExportRoutes'); // NEW
 const activityLogRoutes = require('./routes/userActivityLogs');
 const homeRoutes = require('./routes/home'); 
 const attendanceRoutes = require('./routes/attendanceRoutes');
-// const authRoutes = require('./routes/auth');
-// -- other routes
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 const allowedOrigins = [
@@ -59,16 +58,40 @@ app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Nindyamaya Backend API!' });
 });
 
-// Use API Routes
+// API Routes
 app.use('/api/users', userRoutes);
 app.use('/api/semesters', semesterRoutes);
 app.use('/api/user-roles', userRoleRoutes);
 app.use('/api/pairings', pairingRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/sessions-export', sessionExportRoutes); // NEW: For export endpoints
 app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/attendance', attendanceRoutes);
-// -- other routes
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Route list endpoint (for debugging)
+app.get('/api/routes', (req, res) => {
+  const routes = [
+    { method: 'GET', path: '/api/sessions' },
+    { method: 'GET', path: '/api/sessions/export' },
+    { method: 'GET', path: '/api/sessions/:id/attendance' },
+    { method: 'GET', path: '/api/attendance/session/:id' },
+    { method: 'GET', path: '/api/attendance/all/records' },
+    { method: 'GET', path: '/api/sessions-export/export' },
+    { method: 'GET', path: '/api/sessions-export/bulk-attendance' },
+    { method: 'GET', path: '/api/health' },
+  ];
+  res.json({ routes });
+});
 
 // Error handling middleware for authentication errors
 app.use((err, req, res, next) => {
@@ -78,14 +101,32 @@ app.use((err, req, res, next) => {
     next(err);
 });
 
+// 404 Handler for undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`
+  });
+});
+
 // General error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
-// Start the server
-// app.listen(PORT, () => {
-//     console.log(`Backend server running on http://localhost:${PORT}`);
-// });
+// Start the server (if running directly, not as module)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log('Available export routes:');
+    console.log('- GET  /api/sessions-export/export');
+    console.log('- GET  /api/sessions-export/bulk-attendance');
+  });
+}
+
 module.exports = app;
