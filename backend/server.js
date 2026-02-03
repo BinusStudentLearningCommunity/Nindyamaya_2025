@@ -20,6 +20,7 @@ const PORT = process.env.PORT;
 
 // Middleware
 const allowedOrigins = [
+  'http://localhost:5173',
   'https://newnindyamaya.bslc.or.id',
   'https://nindyamaya-2025-frontend.vercel.app'
 ];
