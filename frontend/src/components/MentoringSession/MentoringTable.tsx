@@ -49,7 +49,7 @@ interface MentoringTableProps {
 }
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'https://nindyamaya-backend.vercel.app/api';
+const API_BASE_URL = 'https://nindyamaya-backend.vercel.app/api';
 
 const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
