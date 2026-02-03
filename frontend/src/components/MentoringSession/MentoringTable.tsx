@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react'
 import './MentoringSessionPage.css'
@@ -57,9 +58,182 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
 
     setIsExporting(true);
     try {
-      // Fetch attendance data for each session
       const token = localStorage.getItem('token');
-      const attendancePromises = sessions.map(async (session) => {
+      
+      // Fetch attendance data for ALL sessions in one batch
+      // This is more efficient than making multiple API calls
+      try {
+        // First, let's try to fetch all attendance data in one call
+        const allAttendanceResponse = await axios.get('/api/sessions/attendance/all', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        // Process the data
+        const excelData = sessions.map(session => {
+          // Find attendance for this session
+          const sessionAttendance = allAttendanceResponse.data?.attendance?.[session.session_id] || [];
+          
+          // Get attendee names or IDs
+          const attendees = sessionAttendance
+            .map((att: any) => {
+              if (att.mentee_name) {
+                return att.mentee_name;
+              } else if (att.name) {
+                return att.name;
+              } else {
+                return `Mentee ID: ${att.mentee_user_id}`;
+              }
+            })
+            .join(', ');
+            
+          const attendeeCount = sessionAttendance.length;
+
+          return {
+            'Session ID': session.session_id,
+            'Course Name': session.course_name,
+            'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+            'Start Time': session.start_time.substring(0, 5),
+            'End Time': session.end_time.substring(0, 5),
+            'Platform': session.platform,
+            'Session Proof': session.session_proof || 'No proof uploaded',
+            'Attendee Count': attendeeCount,
+            'Attendees': attendees || 'No attendees'
+          };
+        });
+
+        // Create workbook and worksheet
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Set column widths
+        const colWidths = [
+          { wch: 10 }, // Session ID
+          { wch: 30 }, // Course Name
+          { wch: 15 }, // Date
+          { wch: 12 }, // Start Time
+          { wch: 12 }, // End Time
+          { wch: 20 }, // Platform
+          { wch: 40 }, // Session Proof
+          { wch: 15 }, // Attendee Count
+          { wch: 40 }, // Attendees
+        ];
+        worksheet['!cols'] = colWidths;
+
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Mentoring Sessions');
+
+        // Generate file name with current date
+        const dateStr = new Date().toISOString().split('T')[0];
+        const fileName = `mentoring-sessions-${dateStr}.xlsx`;
+
+        // Save the file
+        XLSX.writeFile(workbook, fileName);
+
+        toast.success('Sessions exported successfully!');
+        
+      } catch (error) {
+        console.log('Batch attendance fetch failed, trying individual calls...');
+        
+        // Fallback: Fetch attendance for each session individually
+        const attendancePromises = sessions.map(async (session) => {
+          try {
+            const response = await axios.get(`/api/sessions/${session.session_id}/attendance`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            return {
+              sessionId: session.session_id,
+              attendance: response.data.attendance || []
+            };
+          } catch (err) {
+            console.error(`Failed to fetch attendance for session ${session.session_id}:`, err);
+            return {
+              sessionId: session.session_id,
+              attendance: []
+            };
+          }
+        });
+
+        const attendanceData = await Promise.all(attendancePromises);
+
+        // Format data for Excel
+        const excelData = sessions.map(session => {
+          const sessionAttendance = attendanceData.find(a => a.sessionId === session.session_id);
+          const attendees = sessionAttendance?.attendance
+            ?.map((att: any) => {
+              if (att.mentee_name) {
+                return att.mentee_name;
+              } else if (att.name) {
+                return att.name;
+              } else {
+                return `Mentee ID: ${att.mentee_user_id}`;
+              }
+            })
+            .join(', ') || 'No attendees';
+          const attendeeCount = sessionAttendance?.attendance?.length || 0;
+
+          return {
+            'Session ID': session.session_id,
+            'Course Name': session.course_name,
+            'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+            'Start Time': session.start_time.substring(0, 5),
+            'End Time': session.end_time.substring(0, 5),
+            'Platform': session.platform,
+            'Session Proof': session.session_proof || 'No proof uploaded',
+            'Attendee Count': attendeeCount,
+            'Attendees': attendees
+          };
+        });
+
+        // Create workbook and worksheet
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Set column widths
+        const colWidths = [
+          { wch: 10 }, // Session ID
+          { wch: 30 }, // Course Name
+          { wch: 15 }, // Date
+          { wch: 12 }, // Start Time
+          { wch: 12 }, // End Time
+          { wch: 20 }, // Platform
+          { wch: 40 }, // Session Proof
+          { wch: 15 }, // Attendee Count
+          { wch: 40 }, // Attendees
+        ];
+        worksheet['!cols'] = colWidths;
+
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Mentoring Sessions');
+
+        // Generate file name with current date
+        const dateStr = new Date().toISOString().split('T')[0];
+        const fileName = `mentoring-sessions-${dateStr}.xlsx`;
+
+        // Save the file
+        XLSX.writeFile(workbook, fileName);
+
+        toast.success('Sessions exported successfully!');
+      }
+    } catch (err) {
+      console.error('Failed to export sessions:', err);
+      toast.error('Failed to export sessions. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportFilteredToExcel = async () => {
+    if (filteredSessions.length === 0) {
+      toast.error('No filtered sessions to export.');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Fetch attendance for filtered sessions
+      const attendancePromises = filteredSessions.map(async (session) => {
         try {
           const response = await axios.get(`/api/sessions/${session.session_id}/attendance`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -79,20 +253,29 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
 
       const attendanceData = await Promise.all(attendancePromises);
 
-      // Format data for Excel
-      const excelData = sessions.map(session => {
+      // Format filtered data for Excel
+      const excelData = filteredSessions.map((session, index) => {
         const sessionAttendance = attendanceData.find(a => a.sessionId === session.session_id);
-        const attendees = sessionAttendance?.attendance?.map((att: any) => att.name || `Mentee ${att.mentee_user_id}`).join(', ') || 'No attendees';
+        const attendees = sessionAttendance?.attendance
+          ?.map((att: any) => {
+            if (att.mentee_name) {
+              return att.mentee_name;
+            } else if (att.name) {
+              return att.name;
+            } else {
+              return `Mentee ID: ${att.mentee_user_id}`;
+            }
+          })
+          .join(', ') || 'No attendees';
         const attendeeCount = sessionAttendance?.attendance?.length || 0;
 
         return {
-          'Session ID': session.session_id,
+          'No': index + 1,
           'Course Name': session.course_name,
           'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          'Start Time': session.start_time.substring(0, 5),
-          'End Time': session.end_time.substring(0, 5),
+          'Time': `${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`,
           'Platform': session.platform,
-          'Status': session.session_proof ? 'Completed' : 'Pending',
+          'Session Proof': session.session_proof || 'No proof uploaded',
           'Attendee Count': attendeeCount,
           'Attendees': attendees
         };
@@ -104,67 +287,14 @@ const MentoringTable: React.FC<MentoringTableProps> = ({ role }) => {
 
       // Set column widths
       const colWidths = [
-        { wch: 10 }, // Session ID
-        { wch: 30 }, // Course Name
-        { wch: 15 }, // Date
-        { wch: 12 }, // Start Time
-        { wch: 12 }, // End Time
-        { wch: 20 }, // Platform
-        { wch: 12 }, // Status
-        { wch: 15 }, // Attendee Count
-        { wch: 40 }, // Attendees
-      ];
-      worksheet['!cols'] = colWidths;
-
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Mentoring Sessions');
-
-      // Generate file name with current date
-      const dateStr = new Date().toISOString().split('T')[0];
-      const fileName = `mentoring-sessions-${dateStr}.xlsx`;
-
-      // Save the file
-      XLSX.writeFile(workbook, fileName);
-
-      toast.success('Sessions exported successfully!');
-    } catch (err) {
-      console.error('Failed to export sessions:', err);
-      toast.error('Failed to export sessions. Please try again.');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportFilteredToExcel = () => {
-    if (filteredSessions.length === 0) {
-      toast.error('No filtered sessions to export.');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      // Format filtered data for Excel
-      const excelData = filteredSessions.map((session, index) => ({
-        'No': index + 1,
-        'Course Name': session.course_name,
-        'Date': new Date(session.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-        'Time': `${session.start_time.substring(0, 5)} - ${session.end_time.substring(0, 5)}`,
-        'Platform': session.platform,
-        'Status': session.session_proof ? 'Completed' : 'Pending'
-      }));
-
-      // Create workbook and worksheet
-      const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-      // Set column widths
-      const colWidths = [
-        { wch: 5 },  // No
-        { wch: 30 }, // Course Name
-        { wch: 15 }, // Date
-        { wch: 20 }, // Time
-        { wch: 20 }, // Platform
-        { wch: 12 }, // Status
+        { wch: 5 },   // No
+        { wch: 30 },  // Course Name
+        { wch: 15 },  // Date
+        { wch: 20 },  // Time
+        { wch: 20 },  // Platform
+        { wch: 40 },  // Session Proof
+        { wch: 15 },  // Attendee Count
+        { wch: 40 },  // Attendees
       ];
       worksheet['!cols'] = colWidths;
 
